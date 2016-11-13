@@ -32,7 +32,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.create = function (data) {
     return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
-                                              : new Materials.Material.PluggableMaterial(data);
+                                              : data.type === 'plugin' ? new Materials.Material.PluggableMaterial(data) : new Materials.Material.PackageMaterial(data);
   };
 
   Materials.Filter = function (data) {

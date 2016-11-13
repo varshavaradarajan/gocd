@@ -18,9 +18,9 @@ define([
   'mithril', 'lodash', 'string-plus',
   'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'models/pipeline_configs/materials',
   'views/pipeline_configs/test_connection_widget', 'views/pipeline_configs/pipeline_stage_field_widget', 'models/pipeline_configs/pipelines',
-  'models/pipeline_configs/pluggable_scms', 'views/pipeline_configs/pluggable_scm_widget', 'views/pipeline_configs/material_filter_widget',
+  'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/package_repositories', 'views/pipeline_configs/pluggable_scm_widget', 'views/pipeline_configs/material_filter_widget',
   'models/pipeline_configs/plugin_infos'
-], function (m, _, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines, PluggableSCMs,
+], function (m, _, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines, PluggableSCMs, PackageRepositories,
              PluggableSCMWidget, MaterialFilterWidget, PluginInfos) {
 
   var PasswordField = {
@@ -389,7 +389,7 @@ define([
     },
 
     view: function (ctrl, args) {
-      var items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), function (accumulator, value, key) {
+      var items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types, PackageRepositories.Types), function (accumulator, value, key) {
         accumulator.push({id: key, text: value.description});
         return accumulator;
       }, []);
