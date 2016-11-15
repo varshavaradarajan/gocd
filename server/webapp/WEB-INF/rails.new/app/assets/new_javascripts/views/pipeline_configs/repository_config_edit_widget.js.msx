@@ -32,8 +32,12 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
         var self           = this;
         self.parentView    = args.parentView;
         self.material      = args.material;
-        self.repoForEdit    = args.material.repository().clone();
-        self.angularModule = submodule(RepositoryConfigAngularWidget, {repository: self.repoForEdit, parentView: self.parentView});
+        self.repoForEdit   = args.material.repository().clone();
+        self.angularModule = submodule(RepositoryConfigAngularWidget, {
+          repository: self.repoForEdit,
+          parentView: self.parentView
+
+        });
         self.vm            = new Repositories.vm();
 
         self.update = function () {
@@ -41,7 +45,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
 
           self.repoForEdit.update().then(function (repository) {
             self.vm.saveSuccess();
-            self.material.repository().reInitialize(JSON.parse(JSON.stringify(scm)));
+            self.material.repository().reInitialize(JSON.parse(JSON.stringify(repository)));
             self.parentView.close();
           }, function (data) {
             self.vm.saveFailed(data);
@@ -52,7 +56,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
         };
 
         self.parentView.onClose(function () {
-          self.repoForEdit.reInitialize(JSON.parse(JSON.stringify(args.material.scm())));
+          self.repoForEdit.reInitialize(JSON.parse(JSON.stringify(args.material.repository())));
           self.vm.reset();
         });
       },

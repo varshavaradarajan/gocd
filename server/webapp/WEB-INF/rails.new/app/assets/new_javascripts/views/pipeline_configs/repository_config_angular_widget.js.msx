@@ -18,10 +18,10 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
   function (m, _, $, f, s, ComponentMixins, PluginInfos) {
     var RepositoryConfigAngularWidget = {
       controller: function (args) {
+        debugger;
         var self              = this;
         self.repository       = args.repository;
-        //self.plugin           = args.plugin;
-        //self.pluginId         = args.repository.pluginMetadata().id();
+        self.pluginId         = args.repository.pluginMetadata().id();
         self.uuid             = s.uuid();
         self.ngControllerName = 'controller-' + self.uuid;
         self.appName          = 'app-' + self.uuid;
@@ -32,7 +32,8 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
           })).html();
         };
 
-        PluginInfos.PluginInfo.byId(self.pluginId).then(function (plugin) {
+        PluginInfos.PluginInfo.byId('deb').then(function (plugin) {
+          debugger;
           self.templateHTML  = template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 
@@ -70,6 +71,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
 
       view: function (ctrl) {
         var config = function (elem, isInitialized) {
+          debugger;
           if (!isInitialized) {
             var pluginTaskTemplateElement = $('#repository-template-' + ctrl.uuid);
             angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
