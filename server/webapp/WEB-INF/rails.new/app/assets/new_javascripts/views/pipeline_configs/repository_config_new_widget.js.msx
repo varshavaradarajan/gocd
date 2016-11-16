@@ -25,17 +25,25 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
      be retained. To achieve this behaviour the widget works with a clonened copy of scm.
      */
 
-    var RepostitoryConfigurationWidget = {
-      view: function (args) {
+    var RepositoryConfigurationWidget = {
+      view: function (ctrl, args) {
+        var inputType = 'text';
+        var configuration = args.configuration;
+        if (configuration.key().toLowerCase() === 'password') {
+          inputType = 'password';
+        }
+        configuration.becomeUnSecureValue();
         return (
           <f.row>
-            <f.inputWithLabel attrName={args.configuration.key}
+            <f.inputWithLabel attrName='value'
                               class='align'
                               size={12}
+                              label={configuration.key()}
                               largeSize={12}
-                              validate={true}
                               isRequired={true}
-                              model={args.repoForEdit}/>
+                              type={inputType}
+                              model={configuration}/>
+
           </f.row>
         )
       }
@@ -70,9 +78,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
         var material   = args.material;
 
         parentView.onClose(function () {
-          ctrl.repoForEdit().reInitialize({});
-          ctrl.vm.reset();
           ctrl.plugin(pluginInfo.id());
+          //ctrl.repoForEdit().reInitialize({});
+          ctrl.repoForEdit = repositoryConfigurations(pluginInfo.id());
+          ctrl.vm.reset();
         });
 
         var createRepositoryOnSuccess = function (repository) {
@@ -122,21 +131,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
         _.each(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
           items[pluginInfo.id()] = pluginInfo.name();
         });
-
-        var repoConfigurationsView = function(configuration) {
-          return (
-            <f.row>
-              <f.inputWithLabel attrName='value'
-                                class='align'
-                                size={12}
-                                label={configuration.key()}
-                                largeSize={12}
-                                isRequired={true}
-                                model={configuration}/>
-
-            </f.row>
-          )
-        };
+        
         return (
           <div class='modal-content'>
             <div class='modal-header'>
@@ -172,7 +167,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
               </f.row>
 
               {ctrl.repoForEdit().configuration().mapConfigurations(function(configuration) {
-                return repoConfigurationsView(configuration)
+                return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
 
               <f.row>
