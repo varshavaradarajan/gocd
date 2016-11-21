@@ -36,6 +36,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
 
         self.vm = new Repositories.vm();
 
+        self.checkRepositoryConnection = function () {
+          //TODO : Have an API for checking the repository connection and make the request from here.
+        };
+
         self.update = function () {
           self.vm.startUpdating();
 
@@ -82,6 +86,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
               {ctrl.repoForEdit.configuration().mapConfigurations(function(configuration) {
                 return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
+
+              <f.row>
+                <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
+              </f.row>
 
               <f.row>
                 <f.button onclick={ctrl.update.bind(ctrl)}

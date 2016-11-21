@@ -96,6 +96,9 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           vm:           new Repositories.vm(),
           selectPlugin: function (id) {
             this.repoForEdit    = repositoryConfigurations(id);
+          },
+          checkRepositoryConnection: function () {
+          //TODO : Have an API for checking the repository connection and make the request from here.
           }
         };
 
@@ -140,6 +143,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
               {ctrl.repoForEdit().configuration().mapConfigurations(function(configuration) {
                 return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
+
+              <f.row>
+                <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
+              </f.row>
 
               <f.row>
                 <f.button onclick={ctrl.create.bind(ctrl)}
