@@ -15,7 +15,7 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/modal',
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
   'views/pipeline_configs/repository_config_edit_widget', 'views/pipeline_configs/repository_config_new_widget',
   'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
 ], function (m, _, f, tt, ComponentMixins, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, Repositories, PluginInfos) {
@@ -82,32 +82,105 @@ define([
 
   var NewRepositoryWidget = {
     controller: function (args) {
-      var self          = this;
-      self.material     = args.material;
-      self.repositories = Repositories;
-      self.modal        = new Modal({
-        title:   'Add repository',
-        subView: {component: RepositoryConfigNewWidget, args: {material: self.material}}
-      });
+      var createRepositoryOnSuccess = function (vm, repository) {
+        vm.saveSuccess();
+        args.material.repository(repository);
+        Repositories.init();
+      };
+
+      var createRepositoryOnFailure = function (vm, repoForEdit, data) {
+        vm.saveFailed(data);
+        if (data.data) {
+          repoForEdit().reInitialize(data.data);
+        }
+      };
+
+      var repositoryConfigurations = function (pluginId) {
+        return PluginInfos.PluginInfo.byId(pluginId).then(function (pluginInfo) {
+          var allConfigurations        = pluginInfo.configurations();
+          var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
+            return configuration.type === 'repository';
+          });
+          return initializeRepository(pluginInfo, repositoryConfigurations);
+        });
+      };
+
+      var initializeRepository = function (pluginInfo, configurations) {
+        return new Repositories.Repository({
+          plugin_metadata: {
+            id:      pluginInfo.id(),
+            version: pluginInfo.version()
+          },
+          configuration:   configProperties(configurations)
+        });
+      };
+
+      var configProperties = function (configurations) {
+        var config = [];
+        _.map(configurations, function (configuration) {
+          return config.push({key: configuration.key});
+        });
+        return config;
+      };
+
+      var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
+
+      var ctrl = {
+            material:     args.material,
+            //repositories: Repositories,
+            create: function () {
+              var plugin       = m.prop(pluginInfo.id());
+              var repoForEdit  = repositoryConfigurations(pluginInfo.id());
+              var vm           = new Repositories.vm();
+              var selectPlugin = function () {
+                repoForEdit = repositoryConfigurations(this.plugin.id());
+              };
+              var modal        = new Modal({
+                size:    'small',
+                title:   'Add Repository',
+                body:    (<RepositoryConfigNewWidget material={args.material}
+                                                     repoForEdit={repoForEdit}
+                                                     vm={vm}
+                                                     plugin={plugin}/>),
+                onclose: function () {
+                  plugin(pluginInfo.id());
+                  //ctrl.repoForEdit().reInitialize({});
+                  repoForEdit = repositoryConfigurations(pluginInfo.id());
+                  vm.reset();
+                  modal.destroy();
+                },
+                buttons: [
+                  {
+                    text:    'Save',
+                    class:   'save primary',
+                    onclick: function () {
+                      vm.startUpdating();
+                      repoForEdit().create().then(createRepositoryOnSuccess.bind(this, vm), createRepositoryOnFailure.bind(this, vm, repoForEdit));
+                      modal.destroy();
+                    }
+                  }
+                ]
+              });
+              modal.render();
+            }
+
+          }
+        ;
+      return ctrl;
     },
 
     view: function (ctrl, args) {
-      ctrl.onunload = function () {
-        ctrl.modal.destroy();
-      };
-
       return (
         <f.row class='repo-selector'>
           <f.column class='no-repo' size={4} largeSize={6} end>
             {_.isEmpty(Repositories()) ?
-                <div>
+              <div>
                 <label>No repositories available.</label> <a class='add-button button' href="javascript:void(0)"
-                                                             onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New Repository</a> </div>
-                : <a class='add-button button' href="javascript:void(0)"
-                onclick={ctrl.modal.open.bind(ctrl.modal)} />}
+                                                             onclick={ctrl.create}>Create New Repository</a></div>
+              : <a class='add-button button' href="javascript:void(0)"
+                   onclick={ctrl.create}/>}
 
           </f.column>
-          {ctrl.modal.view()}
         </f.row>
       );
     }
@@ -152,18 +225,18 @@ define([
   var RepositoryWidget = {
     controller: function (args) {
       return {
-          defaultRepoId : function () {
-              return _.isNil(args.material.repository()) ? _.head(Repositories()).id : args.material.repository().id;
-          }
+        defaultRepoId: function () {
+          return _.isNil(args.material.repository()) ? _.head(Repositories()).id : args.material.repository().id;
+        }
       };
     },
     view:       function (ctrl, args) {
-      debugger;
       return (
         <div>
           <NewRepositoryWidget material={args.material}/>
-            {!_.isNil(args.material.repository()) || !_.isEmpty(Repositories())  ?  <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
-          {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material}/>}
+          {!_.isNil(args.material.repository()) || !_.isEmpty(Repositories()) ?
+            <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
+          {_.isNil(args.material.repository()) ? '' : ''}
         </div>
       );
     }
