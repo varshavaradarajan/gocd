@@ -82,70 +82,29 @@ define([
 
   var NewRepositoryWidget = {
     controller: function (args) {
-      var createRepositoryOnSuccess = function (vm, repository) {
+      var createRepositoryOnSuccess = function (vm, modal, data) {
         vm.saveSuccess();
-        args.material.repository(repository);
+        modal.destroy();
+        args.material.repository(data);
         Repositories.init();
       };
 
       var createRepositoryOnFailure = function (vm, repoForEdit, data) {
         vm.saveFailed(data);
-        if (data.data) {
-          repoForEdit().reInitialize(data.data);
-        }
       };
-
-      var repositoryConfigurations = function (pluginId) {
-        return PluginInfos.PluginInfo.byId(pluginId).then(function (pluginInfo) {
-          var allConfigurations        = pluginInfo.configurations();
-          var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
-            return configuration.type === 'repository';
-          });
-          return initializeRepository(pluginInfo, repositoryConfigurations);
-        });
-      };
-
-      var initializeRepository = function (pluginInfo, configurations) {
-        return new Repositories.Repository({
-          plugin_metadata: {
-            id:      pluginInfo.id(),
-            version: pluginInfo.version()
-          },
-          configuration:   configProperties(configurations)
-        });
-      };
-
-      var configProperties = function (configurations) {
-        var config = [];
-        _.map(configurations, function (configuration) {
-          return config.push({key: configuration.key});
-        });
-        return config;
-      };
-
-      var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
 
       var ctrl = {
-            material:     args.material,
-            //repositories: Repositories,
-            create: function () {
-              var plugin       = m.prop(pluginInfo.id());
-              var repoForEdit  = repositoryConfigurations(pluginInfo.id());
-              var vm           = new Repositories.vm();
-              var selectPlugin = function () {
-                repoForEdit = repositoryConfigurations(this.plugin.id());
-              };
-              var modal        = new Modal({
+            material: args.material,
+            create:   function () {
+              var repoForEdit = m.prop(new Repositories.Repository({}));
+              var vm          = new Repositories.vm();
+
+              var modal = new Modal({
                 size:    'small',
                 title:   'Add Repository',
-                body:    (<RepositoryConfigNewWidget material={args.material}
-                                                     repoForEdit={repoForEdit}
-                                                     vm={vm}
-                                                     plugin={plugin}/>),
+                body:    (<RepositoryConfigNewWidget repoForEdit={repoForEdit}
+                                                     vm={vm}/>),
                 onclose: function () {
-                  plugin(pluginInfo.id());
-                  //ctrl.repoForEdit().reInitialize({});
-                  repoForEdit = repositoryConfigurations(pluginInfo.id());
                   vm.reset();
                   modal.destroy();
                 },
@@ -155,8 +114,7 @@ define([
                     class:   'save primary',
                     onclick: function () {
                       vm.startUpdating();
-                      repoForEdit().create().then(createRepositoryOnSuccess.bind(this, vm), createRepositoryOnFailure.bind(this, vm, repoForEdit));
-                      modal.destroy();
+                      repoForEdit()().create().then(createRepositoryOnSuccess.bind(this, vm, modal), createRepositoryOnFailure.bind(this, vm, repoForEdit));
                     }
                   }
                 ]
