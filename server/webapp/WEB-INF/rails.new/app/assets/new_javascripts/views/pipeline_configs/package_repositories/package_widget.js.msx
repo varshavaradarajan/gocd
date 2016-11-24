@@ -20,6 +20,41 @@ define([
 ], function (m, _, f, tt, ComponentMixins, Modal, Packages, PluginInfos) {
 
 
+  var NewPackageWidget = {
+    controller: function (args) {
+
+    },
+
+    view: function (ctrl, args) {
+      return (
+        //<f.row class='repo-selector'>
+        //  <f.column class='no-repo' size={4} largeSize={6} end>
+        //    {_.isEmpty(Packages()) ?
+        //      <div>
+        //        <label>No packages available.</label> <a class='add-button button' href="javascript:void(0)"
+        //                                                     onclick={ctrl.create}>Create New Repository</a></div>
+        //      : <a class='add-button button' href="javascript:void(0)"
+        //           onclick={ctrl.create}/>}
+        //
+        //  </f.column>
+        //</f.row>
+        <div></div>
+      );
+    }
+  };
+
+  var EditPackageWidget = {
+    controller: function (args) {
+
+    },
+
+    view: function (ctrl, args) {
+      return (
+        <div></div>
+      )
+    }
+  };
+
   var PackageWidget= {
     controller: function (args) {
 
@@ -27,7 +62,8 @@ define([
     view: function (ctrl, args) {
       return (
        <div>
-
+         <NewPackageWidget material={args.material}/>
+         <EditPackageWidget material={args.material}/>
        </div>
       )
     }
