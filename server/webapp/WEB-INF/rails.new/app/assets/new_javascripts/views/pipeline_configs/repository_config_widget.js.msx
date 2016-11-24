@@ -204,12 +204,21 @@ define([
       };
     },
     view:       function (ctrl, args) {
+      debugger;
+      var noPackagesInfo;
+      if(!_.isNil(args.material.repository()) && _.isEmpty(args.material.repository().packages())) {
+        noPackagesInfo = (<div>
+          <label>No packages available in this repository.</label>
+          <a class='add-button button' href="javascript:void(0)">Create New Package</a>
+        </div>)
+      }
       return (
         <div>
           <NewRepositoryWidget material={args.material}/>
           {!_.isNil(args.material.repository()) || !_.isEmpty(Repositories()) ?
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
-          {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material} /> }
+          {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material}/> }
+          {noPackagesInfo}
         </div>
       );
     }
