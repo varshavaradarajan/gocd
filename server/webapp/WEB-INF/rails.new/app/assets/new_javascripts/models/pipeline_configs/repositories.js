@@ -36,19 +36,19 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
         this.pluginMetadata = m.prop(new Repositories.Repository.PluginMetadata(data.plugin_metadata || {}));
         this.configuration  = s.collectionToJSON(m.prop(Repositories.Repository.Configurations.fromJSON(data.configuration || {})));
-        this.packages       = s.collectionToJSON(m.prop(data._embedded.packages));
+        this.packages       = s.collectionToJSON(m.prop(Repositories.Repository.Package(data._embedded.packages)));
         this.errors         = m.prop(new Errors(data.errors));
       };
 
       this.init(data);
 
-      this.reInitialize = function (data) {
-        this.init(data);
-      };
+      //this.reInitialize = function (data) {
+      //  this.init(data);
+      //};
 
-      this.clone = function () {
-        return new Repositories.Repository(JSON.parse(JSON.stringify(this)));
-      };
+      //this.clone = function () {
+      //  return new Repositories.Repository(JSON.parse(JSON.stringify(this)));
+      //};
 
       this.toJSON = function () {
         /* eslint-disable camelcase */
@@ -106,6 +106,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
           type:       Repositories.Repository
         });
       };
+    };
+
+
+    Repositories.Repository.Package = function(data) {
+      this.id = m.prop(s.defaultToIfBlank(data.id, ''));
+      this.name = m.prop(s.defaultToIfBlank(data.name, ''));
     };
 
 
