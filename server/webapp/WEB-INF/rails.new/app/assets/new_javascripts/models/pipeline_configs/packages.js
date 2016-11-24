@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/repositories'],
+  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes, Repositories) {
 
     var Packages             = m.prop([]);
     Packages.packageIdToEtag = {};
@@ -34,9 +34,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       this.init = function (data) {
         this.id            = m.prop(s.defaultToIfBlank(data.id, ''));
         this.name          = m.prop(s.defaultToIfBlank(data.name, ''));
-        this.autoUpdate    = m.prop(s.defaultToBlank(data.auto_update, true));
+        this.autoUpdate    = m.prop(s.defaultToIfBlank(data.auto_update, true));
         this.configuration = s.collectionToJSON(m.prop(Packages.Package.Configurations.fromJSON(data.configuration || {})));
-        this.packageRepoId = m.prop(s.defaultToBlank(data.package_repo.id));
+        this.packageRepo   = m.prop(new Packages.Package.PackageRepository(data.package_repo || {}));
       };
 
       this.init(data);
@@ -49,16 +49,17 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       //  return new Packages.Package(JSON.parse(JSON.stringify(this)));
       //};
 
-      //this.toJSON = function () {
-      //  /* eslint-disable camelcase */
-      //  return {
-      //    id:              this.id(),
-      //    name:            this.name(),
-      //    plugin_metadata: this.pluginMetadata().toJSON(),
-      //    configuration:   this.configuration
-      //  };
-      //  /* eslint-enable camelcase */
-      //};
+      this.toJSON = function () {
+        /* eslint-disable camelcase */
+        return {
+          id:              this.id(),
+          name:            this.name(),
+          auto_update:      this.autoUpdate(),
+          package_repo:    this.packageRepo.toJSON(),
+          configuration:   this.configuration
+        };
+        /* eslint-enable camelcase */
+      };
 
       this.update = function () {
         var self = this;
@@ -105,6 +106,18 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
           type:       Packages.Package
         });
       };
+    };
+
+    Packages.Package.PackageRepository = function (data) {
+      this.id   = m.prop(s.defaultToIfBlank(data.id, ''));
+      this.name = m.prop(s.defaultToIfBlank(data.name, ''));
+
+      this.toJSON = function () {
+        return {
+          id: this.id(),
+          name: this.name()
+        }
+      }
     };
 
     Packages.init = function (repoId) {

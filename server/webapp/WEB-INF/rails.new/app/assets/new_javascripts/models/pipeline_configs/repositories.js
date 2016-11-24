@@ -194,6 +194,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
     Repositories.init = function () {
+      debugger;
       return m.request({
         method:        'GET',
         url:           Routes.apiv1AdminRepositoriesPath(),
