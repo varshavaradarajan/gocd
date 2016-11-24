@@ -31,12 +31,20 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     Repositories.Repository = function (data) {
       Validatable.call(this, data);
 
+      var embeddedPackages = function (data) {
+        var getPackages = function(embedded) {
+          return embedded.packages ? embedded.packages : ''
+        };
+        return data._embedded ? getPackages(data._embedded) : '';
+      };
+
+
       this.init = function (data) {
         this.id             = m.prop(s.defaultToIfBlank(data.repo_id));
         this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
         this.pluginMetadata = m.prop(new Repositories.Repository.PluginMetadata(data.plugin_metadata || {}));
         this.configuration  = s.collectionToJSON(m.prop(Repositories.Repository.Configurations.fromJSON(data.configuration || {})));
-        this.packages       = s.collectionToJSON(m.prop(Repositories.Repository.Package(data._embedded.packages)));
+        this.packages       = s.collectionToJSON(m.prop(Repositories.Repository.Package(embeddedPackages(data))));
         this.errors         = m.prop(new Errors(data.errors));
       };
 
