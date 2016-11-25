@@ -118,8 +118,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
     Repositories.Repository.Packages = function (data) {
       Mixins.HasMany.call(this, {
-        factory:    Repositories.Repository.Packages.Package,
-        as:         'Configuration',
+        factory:    Repositories.Repository.Packages,
+        as:         'Package',
         collection: data
       });
     };
@@ -218,7 +218,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
     Repositories.init = function () {
-      debugger;
       return m.request({
         method:        'GET',
         url:           Routes.apiv1AdminRepositoriesPath(),
