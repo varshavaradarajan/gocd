@@ -176,14 +176,20 @@ define([
     },
 
     view: function (ctrl, args) {
-      var items = _.transform(Repositories(), function (result, value) {
-        result[value.id()] = value.name();
-      }, {});
+      var items = [];
+      _.each(Repositories(), function (repository) {
+        var item = {};
+        item['id'] = repository.id();
+        item['text'] = repository.name();
+        items.push(item);
+      });
 
       return (
         <f.row class='repo-selector'>
           <f.select
             value={args.defaultRepoId}
+            model={args}
+            attrName="defaultRepoId"
             items={items}
             size={6}
             largeSize={2}
@@ -218,7 +224,7 @@ define([
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
           {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}/> }
           {noPackagesInfo}
-          <PackageWidget material={args.material}/>
+          {!_.isNil(repository()) && !_.isEmpty(repository().packages()) ? <PackageWidget material={args.material}/> : ''}
         </div>
       );
     }

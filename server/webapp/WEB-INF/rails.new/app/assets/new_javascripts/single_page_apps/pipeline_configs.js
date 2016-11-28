@@ -31,7 +31,7 @@ require([
     Resources.initializeWith(allResourceNames);
     Users.initializeWith(allUserNames);
     Roles.initializeWith(allRoleNames);
-    m.sync([PluginInfos.init(), SCMs.init(), ElasticProfiles.all(),  Repositories.init()]).then(function () {
+    m.sync([PluginInfos.init(), SCMs.init(), ElasticProfiles.all(),  Repositories.init()]).then(function (args) {
       PluggableTasks.init();
       PluggableSCMs.init();
       PackageRepositories.init();
