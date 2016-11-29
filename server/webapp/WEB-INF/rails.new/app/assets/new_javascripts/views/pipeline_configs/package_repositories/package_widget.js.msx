@@ -164,6 +164,7 @@ define([
       return {
         selectPackage: function (packageId) {
           args.material.ref(packageId);
+          args.defaultPackageId(packageId);
           args.getPackageForEdit(packageId);
         }
       }
@@ -181,13 +182,12 @@ define([
       return (
         <f.row class='repo-selector'>
           <f.select
-            value={args.defaultPackageId}
             model={args}
             attrName="defaultPackageId"
             items={items}
             size={6}
             largeSize={2}
-            onchange={ctrl.selectPackage.bind(ctrl, args.defaultPackageId())}
+            onchange={ctrl.selectPackage.bind(ctrl, args.asdf())}
           />
         </f.row>
       );
@@ -207,8 +207,12 @@ define([
           return this.packageForEdit;
         },
 
+        asdf: function () {
+          return "2";
+        },
+
         defaultPackageId: function () {
-          return args.material.repository().packages().firstPackage().id();
+          return ? args.material.repository().packages().firstPackage().id();
         }
       };
       return ctrl;
