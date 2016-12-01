@@ -142,7 +142,7 @@ define([
 
     view: function (ctrl) {
       return (
-        <f.row class='repo-selector'>
+        <f.row>
           <f.column class='no-repo' size={4} largeSize={6} end>
             {_.isEmpty(Repositories()) ?
               <div>

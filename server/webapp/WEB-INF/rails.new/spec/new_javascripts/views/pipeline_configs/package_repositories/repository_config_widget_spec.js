@@ -196,6 +196,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       m.redraw(true);
     });
 
+
     var setMaterialWithDebainRepository = function () {
       var repository = new Repositories.Repository(repositoryJSON);
       var pluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
@@ -205,10 +206,10 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       mount(pkgMaterial);
     };
 
-    describe("list all profiles", function () {
+    describe("Repository Widget", function () {
       it("should give button to create repository if no repository exists", function () {
-        var noRepositoryInfo    = $root.find('.repo-selector .no-repo label');
-        var createNewRepoButton = $root.find('.repo-selector .no-repo .add-button');
+        var noRepositoryInfo    = $root.find('.no-repo label');
+        var createNewRepoButton = $root.find('.no-repo .add-button');
 
         expect(noRepositoryInfo).toHaveText('No repositories available.');
         expect(createNewRepoButton).toHaveText('Create New Repository');
@@ -216,15 +217,10 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
       it("should give button to add new repository", function () {
         setMaterialWithDebainRepository();
-        var noRepositoryInfo = $root.find('.repo-selector label');
+        var noRepositoryInfo = $root.find('.no-repo label');
 
         expect(noRepositoryInfo).not.toHaveText('No repositories available.');
-        expect($root.find('.repo-selector .add-button')).toExist();
-      });
-
-      it('should show select repository drop down', function () {
-        setMaterialWithDebainRepository();
-
+        expect($root.find('.no-repo .add-button')).toExist();
       });
 
       it('should show edit repository information', function () {
@@ -246,13 +242,61 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
       });
 
-      it('should have selector to change repository', function () {
+      it('should have the first repository selected by default in the repository dropdown', function () {
         setMaterialWithDebainRepository();
         var repositoryInfo = $root.find('.repo-selector');
-        var repoSelector = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
+        var defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
 
-        expect(repoSelector).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
+        expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
       });
+
+      //
+      //it('should change the repository on selection in the repository dropdown', function () {
+      //  setMaterialWithDebainRepository();
+      //  var repositoryInfo = $root.find('.repo-selector');
+      //  var defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
+      //  expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
+      //
+      //  var repo2 = new Repositories.Repository({
+      //    "repo_id": "repo2",
+      //    "name": "Name"
+      //  });
+      //
+      //  Repositories().push(repo2);
+      //  //mount(pkgMaterial);
+      //
+      //  $(defaultSelection).val('repo2');
+      //  m.redraw(true);
+      //
+      //  defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
+      //  debugger;
+      //  expect($(defaultSelection).find("option:selected")).toHaveText('Name')
+      //});
+
+      //it('should chagen the edit repository information on change of repository selector', function () {
+      //  setMaterialWithDebainRepository();
+      //  changeRepositorySelector();
+      //
+      //  var editRepositoryBox = $root.find('.repository');
+      //  expect($(editRepositoryBox).find('button')).toExist();
+      //
+      //  var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
+      //    return $(label).text();
+      //  });
+      //
+      //  var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
+      //    return $(span).text();
+      //  });
+      //
+      //  expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
+      //  expect(editRepositoryInformation).toEqual(['repo', 'Deb plugin', 'http://', 'first', '***********']);
+      //
+      //});
+
+
+
+
+
 
       //it('should change the edit repository ')
 
