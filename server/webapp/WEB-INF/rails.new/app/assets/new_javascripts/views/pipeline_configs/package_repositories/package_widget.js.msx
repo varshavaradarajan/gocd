@@ -161,6 +161,7 @@ define([
   var SelectPackageWidget = {
     controller: function (args) {
       args.getPackageForEdit(args.defaultPackageId());
+      args.material.ref(args.defaultPackageId());
       return {
         selectPackage: function () {
           var packageId = args.defaultPackageId();
