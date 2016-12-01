@@ -162,9 +162,9 @@ define([
     controller: function (args) {
       args.getPackageForEdit(args.defaultPackageId());
       return {
-        selectPackage: function (packageId) {
+        selectPackage: function () {
+          var packageId = args.defaultPackageId();
           args.material.ref(packageId);
-          args.defaultPackageId(packageId);
           args.getPackageForEdit(packageId);
         }
       }
@@ -187,7 +187,7 @@ define([
             items={items}
             size={6}
             largeSize={2}
-            onchange={ctrl.selectPackage.bind(ctrl, args.asdf())}
+            onchange={ctrl.selectPackage}
           />
         </f.row>
       );
@@ -196,6 +196,15 @@ define([
 
   var PackageWidget = {
     controller: function (args) {
+      var temp = function () {
+        if(args.material.repository().packages().countPackage() === 0) {
+          return args.material.ref();
+        }
+        if(args.material.ref()) {
+          return args.material.ref();
+        }
+        return args.material.repository().packages().firstPackage().id();
+      };
       var ctrl = {
         packageForEdit: m.prop(new Packages.Package({})),
 
@@ -207,13 +216,8 @@ define([
           return this.packageForEdit;
         },
 
-        asdf: function () {
-          return "2";
-        },
+        defaultPackageId: m.prop(temp()),
 
-        defaultPackageId: function () {
-          return ? args.material.repository().packages().firstPackage().id();
-        }
       };
       return ctrl;
     },
@@ -223,13 +227,13 @@ define([
           {args.material.repository().packages().countPackage() === 0 ? '' :
             <SelectPackageWidget material={args.material}
                                  defaultPackageId={ctrl.defaultPackageId}
-                                 getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)} />}
+                                 getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
 
           <NewPackageWidget material={args.material}
                             packageForEdit={ctrl.packageForEdit}
                             getPackageForEdit={ctrl.getPackageForEdit}/>
 
-          {_.isNil(args.material.ref()) ? '' : <EditPackageWidget getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}
+          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}
                                                                   packageForEdit={ctrl.packageForEdit}
                                                                   material={args.material}/>}
         </div>
