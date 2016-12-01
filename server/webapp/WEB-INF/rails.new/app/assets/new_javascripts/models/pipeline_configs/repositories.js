@@ -265,7 +265,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       var config = function (xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-        xhr.setRequestHeader( 'CacheControl', false );
+        xhr.setRequestHeader( 'Cache-Control', "no-cache");
       };
 
       var extract = function (xhr) {
