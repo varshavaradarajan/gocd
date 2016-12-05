@@ -68,50 +68,47 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
         }
       };
 
-
-      var allRepositoriesJSON = {
-        "_embedded": {
-          "package_repositories": [
+      var npmPluginInfoJSON = {
+        "id":                          "npm",
+        "name":                        "Npm plugin",
+        "version":                     "13.4.1",
+        "type":                        "package-repository",
+        "pluggable_instance_settings": {
+          "configurations": [
             {
-              "repo_id":         "2e74f4c6-be61-4122-8bf5-9c0641d44258",
-              "name":            "first1",
-              "plugin_metadata": {
-                "id":      "nuget",
-                "version": "1"
-              },
-              "configuration":   [
-                {
-                  "key":   "REPO_URL",
-                  "value": "http://"
-                },
-                {
-                  "key":   "USERNAME",
-                  "value": "first"
-                },
-                {
-                  "key":             "PASSWORD",
-                  "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
-                }
-              ],
-              "_embedded":       {
-                "packages": []
+              "key":      "PACKAGE_NAME",
+              "type":     "package",
+              "metadata": {
+                "secure":           false,
+                "required":         true,
+                "part_of_identity": true
               }
             },
             {
-              "repo_id":         "6e74622b-b921-4546-9fc6-b7f9ba1732ba",
-              "name":            "hello",
-              "plugin_metadata": {
-                "id":      "deb",
-                "version": "1"
-              },
-              "configuration":   [
-                {
-                  "key":   "REPO_URL",
-                  "value": "http://hello"
-                }
-              ],
-              "_embedded":       {
-                "packages": []
+              "key":      "VERSION_SPEC",
+              "type":     "package",
+              "metadata": {
+                "secure":           false,
+                "required":         false,
+                "part_of_identity": true
+              }
+            },
+            {
+              "key":      "ARCHITECTURE",
+              "type":     "package",
+              "metadata": {
+                "secure":           false,
+                "required":         false,
+                "part_of_identity": true
+              }
+            },
+            {
+              "key":      "REPO_URL",
+              "type":     "repository",
+              "metadata": {
+                "secure":           false,
+                "required":         true,
+                "part_of_identity": true
               }
             }
           ]
@@ -119,52 +116,17 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       };
 
 
-      var repositoryJSON = {
-        "repo_id": "e9745dc7-aaeb-48a8-a22a-fa206ad0637e",
-        "name": "repo",
-        "plugin_metadata": {
-          "id": "deb",
-          "version": "1"
-        },
-        "configuration": [
-          {
-            "key": "REPO_URL",
-            "value": "http://"
-          },
-          {
-            "key":   "USERNAME",
-            "value": "first"
-          },
-          {
-            "key":             "PASSWORD",
-            "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
-          }
-        ],
-        "_embedded": {
-          "packages": [
-
-          ]
-        }
-      };
-
-      var removeModal = function () {
-        $('.modal-parent').each(function (_i, elem) {
-          $(elem).data('modal').destroy();
-        });
-      };
-
       var mount = function (repository) {
         m.mount(root,
           m.component(RepositoryConfigNewWidget,
             {
               'repoForEdit': repository,
-              'vm': new Repositories.vm()
+              'vm':          new Repositories.vm()
             })
         );
         m.redraw(true);
       };
 
-      var pkgMaterial;
 
       beforeEach(function () {
         jasmine.Ajax.install();
@@ -172,19 +134,11 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           responseText: JSON.stringify(debPluginInfoJSON),
           status:       200
         });
-        //
-        //jasmine.Ajax.stubRequest('/go/api/admin/repositories', undefined, 'GET').andReturn({
-        //  responseText: JSON.stringify(allRepositoriesJSON),
-        //  status:       200
-        //});
-        //
-        //jasmine.Ajax.stubRequest('/go/api/admin/repositories/e9745dc7-aaeb-48a8-a22a-fa206ad0637e', undefined, 'GET').andReturn({
-        //  responseText: JSON.stringify(repositoryJSON),
-        //  status:       200
-        //});
 
-        var pluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
-        PluginInfos([pluginInfo]);
+        var debPluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
+        var npmPluginInfo = new PluginInfos.PluginInfo(npmPluginInfoJSON);
+
+        PluginInfos([debPluginInfo, npmPluginInfo]);
         var repository = m.prop(new Repositories.Repository({}));
         mount(repository);
       });
@@ -196,60 +150,68 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
         m.redraw(true);
       });
 
-      var setMaterialWithDebainRepository = function () {
-        var repository = new Repositories.Repository(repositoryJSON);
-        var pluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
-        pkgMaterial.repository(repository);
-        Repositories([repository]);
-        PluginInfos([pluginInfo]);
-        mount(pkgMaterial);
-      };
-
       describe("Repository New Widget", function () {
         it("should have input for repository name", function () {
           var modal = $root.find('.modal-content');
           expect(modal).toContainElement("input[data-prop-name='name']");
-          expect(modal).toContainElement("select[data-prop-name='plugin']");
           var labels = $(modal).find('label');
           expect(labels[0]).toContainText("Name");
-          expect(labels[1]).toContainText("Type of plugin");
         });
 
+        it("should have a dropdown for repository plugins", function () {
+          var selector = $root.find(".modal-content select[data-prop-name='plugin']");
+          var labels = $root.find('.modal-content label');
+          expect(labels[1]).toContainText("Type of plugin");
+          var options = $(selector).find('option');
+          expect(options[0]).toHaveText('Deb plugin');
+          expect(options[1]).toHaveText('Npm plugin');
+        });
 
+        //it("should change the repository model if name is changed", function () {
+        //  var repository = m.prop(new Repositories.Repository({}));
+        //  mount(repository);
+        //  var input = $root.find(".modal-content input[data-prop-name='name']");
+        //  expect(input).toHaveValue('');
+        //  $(input).val('RepoName');
+        //  m.redraw(true);
+        //  expect(repository().name()).toBe('RepoName');
+        //});
 
-        //it("should give button to add new repository", function () {
-        //  setMaterialWithDebainRepository();
-        //  var noRepositoryInfo = $root.find('.repo-selector label');
+        it(' should change the slected value in the dropdown if plugin is changed', function () {
+          var selector = $root.find(".modal-content select[data-prop-name='plugin']");
+          var selectedOption = $(selector).find("option:selected");
+          expect(selectedOption).toHaveText('Deb plugin');
+
+          $(selector).val('npm');
+          m.redraw(true);
+          selectedOption = $(selector).find("option:selected");
+          expect(selectedOption).toHaveText('Npm plugin');
+        });
+
+        //it('should change the repository model if plugin is changed', function () {
+        //  var repository = m.prop(new Repositories.Repository({}));
+        //  mount(repository);
         //
-        //  expect(noRepositoryInfo).not.toHaveText('No repositories available.');
-        //  expect($root.find('.repo-selector .add-button')).toExist();
+        //  expect(repository().pluginMetadata().id()).toBe('deb');
+        //  expect(repository().configuration()).toBe([Repositories.Repository.Configurations.fromJSON([{'key': 'REPO_URL'}])]);
+        //
+        //  var selector = $root.find(".modal-content select[data-prop-name='plugin']");
+        //  $(selector).val('npm');
+        //  m.redraw(true);
+        //
+        //  expect(repository().pluginMetadata().id()).toBe('npm');
+        //  expect(repository().configuration()).toBe([Repositories.Repository.Configurations.fromJSON([{'key': 'REPO_URL'}, {'key': 'USERNAME'}, {'key': 'PASSWORD'}])])
         //});
         //
-        //it('should show edit repository information', function () {
-        //  setMaterialWithDebainRepository();
+        //it('should change the number of repository configurations if plugin is changed', function () {
+        //  var inputs = $root.find(".modal-body input[data-prop-name='value']");
+        //  expect(inputs.size()).toEqual(1);
+        //  var selector = $root.find(".modal-content select[data-prop-name='plugin']");
+        //  $(selector).val('npm');
+        //  m.redraw(true);
         //
-        //  var editRepositoryBox = $root.find('.repository');
-        //  expect($(editRepositoryBox).find('button')).toExist();
-        //
-        //  var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-        //    return $(label).text();
-        //  });
-        //
-        //  var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-        //    return $(span).text();
-        //  });
-        //
-        //  expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
-        //  expect(editRepositoryInformation).toEqual(['repo', 'Deb plugin', 'http://', 'first', '***********']);
-        //
-        //});
-        //
-        //it('should have the first repository selected by default in the repository dropdown', function () {
-        //  setMaterialWithDebainRepository();
-        //  var repositoryInfo = $root.find('.repo-selector');
-        //  var defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
-        //
-        //  expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
+        //  inputs = $root.find(".modal-body input[data-prop-name='value']");
+        //  expect(inputs.size()).toEqual(3);
         //});
 
       });

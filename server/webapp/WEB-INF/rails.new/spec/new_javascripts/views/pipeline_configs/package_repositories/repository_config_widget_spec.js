@@ -294,12 +294,10 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       //});
 
 
-
-
-
-
-      //it('should change the edit repository ')
-
     });
+
+    describe("RepoConfigNewWidgetModal", function () {
+      it('should render ')
+    })
   });
 });
