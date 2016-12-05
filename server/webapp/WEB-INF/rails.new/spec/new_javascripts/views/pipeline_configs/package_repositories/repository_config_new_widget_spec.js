@@ -18,7 +18,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
     'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'],
   function ($, m, RepositoryConfigNewWidget, Materials, Repositories, PluginInfos) {
 
-    describe("RepositoryConfigWidget", function () {
+    describe("RepositoryConfigNewWidget", function () {
       var $root = $('#mithril-mount-point'), root = $root.get(0);
 
       var debPluginInfoJSON = {
@@ -210,8 +210,9 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           var modal = $root.find('.modal-content');
           expect(modal).toContainElement("input[data-prop-name='name']");
           expect(modal).toContainElement("select[data-prop-name='plugin']");
-          debugger;
-          expect($(modal).find('label')).toEqual(["Name", "Type of plugin"]);
+          var labels = $(modal).find('label');
+          expect(labels[0]).toContainText("Name");
+          expect(labels[1]).toContainText("Type of plugin");
         });
 
 
