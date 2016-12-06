@@ -177,7 +177,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
         //  expect(repository().name()).toBe('RepoName');
         //});
 
-        it(' should change the slected value in the dropdown if plugin is changed', function () {
+        it(' should change the selected value in the dropdown if plugin is changed', function () {
           var selector = $root.find(".modal-content select[data-prop-name='plugin']");
           var selectedOption = $(selector).find("option:selected");
           expect(selectedOption).toHaveText('Deb plugin');

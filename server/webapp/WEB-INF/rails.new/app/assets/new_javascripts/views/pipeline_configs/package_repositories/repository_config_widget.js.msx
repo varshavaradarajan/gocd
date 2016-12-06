@@ -181,6 +181,13 @@ define([
             },
             buttons: [
               {
+                text: 'Check Repository Connection',
+                class: 'check_repo_connection primary',
+                onclick: function () {
+                  //TODO: implement the check repository API
+                }
+              },
+              {
                 text:    'Save',
                 class:   'save primary',
                 onclick: function () {
