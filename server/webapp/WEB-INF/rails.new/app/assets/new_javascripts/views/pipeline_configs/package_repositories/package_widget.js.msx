@@ -40,32 +40,12 @@ define([
           return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
 
-        update:         function () {
+        performOperation: function (vm, modal) {
+          args.packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        },
 
-          var vm = new Packages.vm();
-          //var packageForEdit = args.getPackageForEdit(args.material.ref());
-          var modal = new Modal({
-            size:    'small',
-            title:   'Edit Package',
-            body:    (<PackageConfigEditWidget packageForEdit={args.packageForEdit}
-                                               repository={args.material.repository()}
-                                               vm={vm}/>),
-            onclose: function () {
-              vm.reset();
-              modal.destroy();
-            },
-            buttons: [
-              {
-                text:    'Save',
-                class:   'save primary',
-                onclick: function () {
-                  vm.startUpdating();
-                  args.packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
-                }
-              }
-            ]
-          });
-          modal.render();
+        update:         function () {
+          args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.performOperation);
         }
       };
       return ctrl;
@@ -108,31 +88,11 @@ define([
   var NewPackageWidget = {
     controller: function (args) {
       var ctrl = {
+        performOperation: function (vm, modal) {
+          args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        },
         create: function () {
-          var vm             = new Packages.vm();
-
-          var modal = new Modal({
-            size:    'small',
-            title:   'Add Package',
-            body:    (<PackageConfigNewWidget packageForEdit={args.packageForEdit}
-                                              repository={args.material.repository()}
-                                              vm={vm}/>),
-            onclose: function () {
-              vm.reset();
-              modal.destroy();
-            },
-            buttons: [
-              {
-                text:    'Save',
-                class:   'save primary',
-                onclick: function () {
-                  vm.startUpdating();
-                  args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
-                }
-              }
-            ]
-          });
-          modal.render();
+          args.create(args.packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.performOperation);
         }
       };
       return ctrl;
@@ -219,6 +179,33 @@ define([
 
         defaultPackageId: m.prop(temp()),
 
+        create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
+          var vm             = new Packages.vm();
+
+          var modal = new Modal({
+            size:    'small',
+            title:   modalTitle,
+            body:    (<PackageConfigurationWidget packageForEdit={packageForEdit}
+                                              repository={repository()}
+                                              vm={vm}/>),
+            onclose: function () {
+              vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  vm.startUpdating();
+                  performOperation(vm, modal);
+                }
+              }
+            ]
+          });
+          modal.render();
+        }
+
       };
       return ctrl;
     },
@@ -232,11 +219,13 @@ define([
 
           <NewPackageWidget material={args.material}
                             packageForEdit={ctrl.packageForEdit}
-                            getPackageForEdit={ctrl.getPackageForEdit}/>
+                            getPackageForEdit={ctrl.getPackageForEdit}
+                            create={ctrl.create}/>
 
           {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}
                                                                   packageForEdit={ctrl.packageForEdit}
-                                                                  material={args.material}/>}
+                                                                  material={args.material}
+                                                                  create={ctrl.create}/>}
         </div>
       );
     }
