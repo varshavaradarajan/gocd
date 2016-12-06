@@ -219,13 +219,11 @@ define([
 
           <NewPackageWidget material={args.material}
                             packageForEdit={ctrl.packageForEdit}
-                            getPackageForEdit={ctrl.getPackageForEdit}
                             create={ctrl.create}/>
 
-          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}
-                                                                  packageForEdit={ctrl.packageForEdit}
-                                                                  material={args.material}
-                                                                  create={ctrl.create}/>}
+          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={ctrl.packageForEdit}
+                                                                                                material={args.material}
+                                                                                                create={ctrl.create}/>}
         </div>
       );
     }
