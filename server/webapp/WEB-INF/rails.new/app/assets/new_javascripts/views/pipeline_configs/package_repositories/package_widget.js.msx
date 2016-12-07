@@ -53,7 +53,7 @@ define([
 
     view: function (ctrl, args) {
       var packageForEdit = args.packageForEdit();
-      var data           = {Name: packageForEdit.name()};
+      var data           = {Name: packageForEdit.name(), Auto_update: packageForEdit.autoUpdate()};
 
       packageForEdit.configuration().mapConfigurations(function (conf) {
         data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
@@ -65,7 +65,7 @@ define([
 
       return (
         <div>
-          <div class='repository'>
+          <div class='package'>
             {editButton}
             <f.row>
               <ul>
@@ -102,7 +102,7 @@ define([
     view: function (ctrl, args) {
       return (
         <f.row>
-          <f.column class='no-repo' size={4} largeSize={6} end>
+          <f.column class='no-package' size={4} largeSize={6} end>
             {args.material.repository().packages().countPackage() === 0 ?
               <div>
                 <label>No packages available in this repository.</label> <a class='add-button button'
@@ -141,7 +141,7 @@ define([
       });
 
       return (
-        <f.row class='repo-selector'>
+        <f.row class='package-selector'>
           <f.select
             model={args}
             attrName="defaultPackageId"
