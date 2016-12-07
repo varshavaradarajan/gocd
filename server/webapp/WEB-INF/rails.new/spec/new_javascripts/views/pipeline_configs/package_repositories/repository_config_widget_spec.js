@@ -165,10 +165,6 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
       beforeEach(function () {
         jasmine.Ajax.install();
-        jasmine.Ajax.stubRequest('/go/api/plugin_info/deb', undefined, 'GET').andReturn({
-          responseText: JSON.stringify(debPluginInfoJSON),
-          status:       200
-        });
 
         jasmine.Ajax.stubRequest('/go/api/admin/repositories', undefined, 'GET').andReturn({
           responseText: JSON.stringify(allRepositoriesJSON),
@@ -338,8 +334,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
             var saveButton = $.find('.reveal:visible .modal-buttons .save');
             $(saveButton).click();
             m.redraw(true);
-            debugger;
             requestArgs = m.request.calls.all()[1].args[0];
+
             expect(requestArgs.url).toBe('/go/api/admin/repositories/e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
             expect(requestArgs.method).toBe('PUT');
           });

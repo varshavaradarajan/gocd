@@ -130,8 +130,13 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
       beforeEach(function () {
         jasmine.Ajax.install();
-        jasmine.Ajax.stubRequest('/go/api/plugin_info/deb', undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/admin/plugin_info/deb', undefined, 'GET').andReturn({
           responseText: JSON.stringify(debPluginInfoJSON),
+          status:       200
+        });
+
+        jasmine.Ajax.stubRequest('/go/api/admin/plugin_info/npm', undefined, 'GET').andReturn({
+          responseText: JSON.stringify(npmPluginInfoJSON),
           status:       200
         });
 
@@ -167,15 +172,15 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           expect(options[1]).toHaveText('Npm plugin');
         });
 
-        //it("should change the repository model if name is changed", function () {
-        //  var repository = m.prop(new Repositories.Repository({}));
-        //  mount(repository);
-        //  var input = $root.find(".modal-content input[data-prop-name='name']");
-        //  expect(input).toHaveValue('');
-        //  $(input).val('RepoName');
-        //  m.redraw(true);
-        //  expect(repository().name()).toBe('RepoName');
-        //});
+        it("should change the repository model if name is changed", function () {
+          var repository = m.prop(new Repositories.Repository({}));
+          mount(repository);
+          var input = $root.find(".modal-content input[data-prop-name='name']");
+          expect(input).toHaveValue('');
+          $(input).val('RepoName').trigger('input');
+          m.redraw(true);
+          expect(repository().name()).toBe('RepoName');
+        });
 
         it(' should change the selected value in the dropdown if plugin is changed', function () {
           var selector = $root.find(".modal-content select[data-prop-name='plugin']");
@@ -193,27 +198,24 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
         //  mount(repository);
         //
         //  expect(repository().pluginMetadata().id()).toBe('deb');
-        //  expect(repository().configuration()).toBe([Repositories.Repository.Configurations.fromJSON([{'key': 'REPO_URL'}])]);
+        //  var configurationKeys = repository().configuration().mapConfigurations(function (configuration) {
+        //    return configuration.key();
+        //  });
+        //  expect(configurationKeys).toEqual(["REPO_URL"]);
         //
         //  var selector = $root.find(".modal-content select[data-prop-name='plugin']");
+        //  debugger;
         //  $(selector).val('npm');
+        //  $(selector).change();
         //  m.redraw(true);
+        //
+        //  configurationKeys = repository().configuration().mapConfigurations(function (configuration) {
+        //    return configuration.key();
+        //  });
         //
         //  expect(repository().pluginMetadata().id()).toBe('npm');
-        //  expect(repository().configuration()).toBe([Repositories.Repository.Configurations.fromJSON([{'key': 'REPO_URL'}, {'key': 'USERNAME'}, {'key': 'PASSWORD'}])])
+        //  expect(configurationKeys).toEqual(["REPO_URL", "USERNAME", "PASSWORD"])
         //});
-        //
-        //it('should change the number of repository configurations if plugin is changed', function () {
-        //  var inputs = $root.find(".modal-body input[data-prop-name='value']");
-        //  expect(inputs.size()).toEqual(1);
-        //  var selector = $root.find(".modal-content select[data-prop-name='plugin']");
-        //  $(selector).val('npm');
-        //  m.redraw(true);
-        //
-        //  inputs = $root.find(".modal-body input[data-prop-name='value']");
-        //  expect(inputs.size()).toEqual(3);
-        //});
-
       });
     });
   });

@@ -22,101 +22,6 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       var repository;
       var $root = $('#mithril-mount-point'), root = $root.get(0);
 
-      var debPluginInfoJSON = {
-        "id":                          "deb",
-        "name":                        "Deb plugin",
-        "version":                     "13.4.1",
-        "type":                        "package-repository",
-        "pluggable_instance_settings": {
-          "configurations": [
-            {
-              "key":      "PACKAGE_NAME",
-              "type":     "package",
-              "metadata": {
-                "secure":           false,
-                "required":         true,
-                "part_of_identity": true
-              }
-            },
-            {
-              "key":      "VERSION_SPEC",
-              "type":     "package",
-              "metadata": {
-                "secure":           false,
-                "required":         false,
-                "part_of_identity": true
-              }
-            },
-            {
-              "key":      "ARCHITECTURE",
-              "type":     "package",
-              "metadata": {
-                "secure":           false,
-                "required":         false,
-                "part_of_identity": true
-              }
-            },
-            {
-              "key":      "REPO_URL",
-              "type":     "repository",
-              "metadata": {
-                "secure":           false,
-                "required":         true,
-                "part_of_identity": true
-              }
-            }
-          ]
-        }
-      };
-
-      var npmPluginInfoJSON = {
-        "id":                          "npm",
-        "name":                        "Npm plugin",
-        "version":                     "13.4.1",
-        "type":                        "package-repository",
-        "pluggable_instance_settings": {
-          "configurations": [
-            {
-              "key":      "PACKAGE_NAME",
-              "type":     "package",
-              "metadata": {
-                "secure":           false,
-                "required":         true,
-                "part_of_identity": true
-              }
-            },
-            {
-              "key":      "VERSION_SPEC",
-              "type":     "package",
-              "metadata": {
-                "secure":           false,
-                "required":         false,
-                "part_of_identity": true
-              }
-            },
-            {
-              "key":      "ARCHITECTURE",
-              "type":     "package",
-              "metadata": {
-                "secure":           false,
-                "required":         false,
-                "part_of_identity": true
-              }
-            },
-            {
-              "key":      "REPO_URL",
-              "type":     "repository",
-              "metadata": {
-                "secure":           false,
-                "required":         true,
-                "part_of_identity": true
-              }
-            }
-          ]
-        }
-      };
-
-
       var mount = function (repository) {
         m.mount(root,
           m.component(RepositoryConfigEditWidget,
@@ -130,34 +35,22 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
 
       beforeEach(function () {
-        jasmine.Ajax.install();
-        jasmine.Ajax.stubRequest('/go/api/plugin_info/deb', undefined, 'GET').andReturn({
-          responseText: JSON.stringify(debPluginInfoJSON),
-          status:       200
-        });
-
-        var debPluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
-        var npmPluginInfo = new PluginInfos.PluginInfo(npmPluginInfoJSON);
-
-        PluginInfos([debPluginInfo, npmPluginInfo]);
         repository = m.prop(new Repositories.Repository({
-                                                              repo_id: 'repoId',
-                                                              name: 'repoName',
-                                                              plugin_metadata: {
-                                                                id: 'deb',
-                                                                version: '12.0'
-                                                              },
-                                                              configuration: [{
-                                                                key: 'REPO_URL',
-                                                                value: 'http://foobar'
-                                                              }]
-                                                          }));
+          repo_id:         'repoId',
+          name:            'repoName',
+          plugin_metadata: {
+            id:      'deb',
+            version: '12.0'
+          },
+          configuration:   [{
+            key:   'REPO_URL',
+            value: 'http://foobar'
+          }]
+        }));
         mount(repository);
       });
 
       afterEach(function () {
-        jasmine.Ajax.uninstall();
-        PluginInfos([]);
         m.mount(root, null);
         m.redraw(true);
       });
@@ -177,22 +70,10 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
         it('should change the repository model on changing the repository name', function () {
           var inputForName = $root.find(".modal-content input[data-prop-name='name']");
           $(inputForName).val("updatedRepoName").trigger('input');
-          m.redraw( true);
+          m.redraw(true);
           expect(repository().name()).toEqual('updatedRepoName');
           expect(inputForName).toHaveValue('updatedRepoName');
         });
-
-        //it(' should change the selected value in the dropdown if plugin is changed', function () {
-        //  var selector = $root.find(".modal-content select[data-prop-name='plugin']");
-        //  var selectedOption = $(selector).find("option:selected");
-        //  expect(selectedOption).toHaveText('Deb plugin');
-        //
-        //  $(selector).val('npm');
-        //  m.redraw(true);
-        //  selectedOption = $(selector).find("option:selected");
-        //  expect(selectedOption).toHaveText('Npm plugin');
-        //});
-
       });
     });
   });

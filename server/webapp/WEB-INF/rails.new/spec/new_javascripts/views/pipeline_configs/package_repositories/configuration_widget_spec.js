@@ -69,16 +69,14 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
         expect(input).toHaveValue('http://repository');
       });
 
-      //it('should change the configuration model on changing input element', function () {
-      //  //TODO
-      //  var configuration = new Repositories.Repository.Configurations.Configuration(config);
-      //  mount(configuration);
-      //  var input = $root.find("input[data-prop-name='value']");
-      //  debugger;
-      //  input.val('http://newrepositoryvalue');
-      //  m.redraw(true);
-      //  expect(configuration.value()).toBe('http://newrepositoryvalue');
-      //})
+      it('should change the configuration model on changing input element', function () {
+        var configuration = new Repositories.Repository.Configurations.Configuration(config);
+        mount(configuration);
+        var input = $root.find("input[data-prop-name='value']");
+        $(input).val('http://newrepositoryvalue').trigger('input');
+        m.redraw(true);
+        expect(configuration.value()).toBe('http://newrepositoryvalue');
+      })
 
     });
   });
