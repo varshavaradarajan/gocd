@@ -145,6 +145,32 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
         }
       };
 
+      var repository2JSON = {
+        "repo_id":         "zzzz",
+        "name":            "zzzz",
+        "plugin_metadata": {
+          "id":      "deb",
+          "version": "1"
+        },
+        "configuration":   [
+          {
+            "key":   "REPO_URL",
+            "value": "http://"
+          },
+          {
+            "key":   "USERNAME",
+            "value": "first"
+          },
+          {
+            "key":             "PASSWORD",
+            "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
+          }
+        ],
+        "_embedded":       {
+          "packages": []
+        }
+      };
+
     var removeModal = function () {
       $('.modal-parent').each(function (_i, elem) {
         $(elem).data('modal').destroy();
@@ -176,6 +202,11 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           status:       200
         });
 
+        jasmine.Ajax.stubRequest('/go/api/admin/repositories/zzzz', undefined, 'GET').andReturn({
+          responseText: JSON.stringify(repository2JSON),
+          status:       200
+        });
+
         pkgMaterial = new Materials().createMaterial({
           type: 'package'
         });
@@ -194,9 +225,10 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
       var setMaterialWithDebainRepository = function () {
         var repository = new Repositories.Repository(repositoryJSON);
+        var repo2 = new Repositories.Repository(repository2JSON);
         var pluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
         pkgMaterial.repository(repository);
-        Repositories([repository]);
+        Repositories([repository, repo2]);
         PluginInfos([pluginInfo]);
         mount(pkgMaterial);
       };
@@ -245,48 +277,59 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
         });
 
-        //
-        //it('should change the repository on selection in the repository dropdown', function () {
-        //  setMaterialWithDebainRepository();
-        //  var repositoryInfo = $root.find('.repo-selector');
-        //  var defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
-        //  expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
-        //
-        //  var repo2 = new Repositories.Repository({
-        //    "repo_id": "repo2",
-        //    "name": "Name"
-        //  });
-        //
-        //  Repositories().push(repo2);
-        //  //mount(pkgMaterial);
-        //
-        //  $(defaultSelection).val('repo2');
-        //  m.redraw(true);
-        //
-        //  defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
-        //  debugger;
-        //  expect($(defaultSelection).find("option:selected")).toHaveText('Name')
-        //});
 
-        //it('should chagen the edit repository information on change of repository selector', function () {
-        //  setMaterialWithDebainRepository();
-        //  changeRepositorySelector();
-        //
-        //  var editRepositoryBox = $root.find('.repository');
-        //  expect($(editRepositoryBox).find('button')).toExist();
-        //
-        //  var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-        //    return $(label).text();
-        //  });
-        //
-        //  var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-        //    return $(span).text();
-        //  });
-        //
-        //  expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
-        //  expect(editRepositoryInformation).toEqual(['repo', 'Deb plugin', 'http://', 'first', '***********']);
-        //
-        //});
+        it('should change the repository on selection in the repository dropdown', function () {
+          setMaterialWithDebainRepository();
+          var repositoryInfo = $root.find('.repo-selector');
+          var defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
+          expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
+
+          $(defaultSelection).val('zzzz');
+          m.redraw(true);
+
+          defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
+          expect($(defaultSelection).find("option:selected")).toHaveText('zzzz');
+
+        });
+
+        it('should change the edit repository information on change of repository selector', function () {
+          setMaterialWithDebainRepository();
+
+          var editRepositoryBox = $root.find('.repository');
+          expect($(editRepositoryBox).find('button')).toExist();
+
+          var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
+            return $(label).text();
+          });
+
+          var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
+            return $(span).text();
+          });
+
+          expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
+          expect(editRepositoryInformation).toEqual(['repo', 'Deb plugin', 'http://', 'first', '***********']);
+
+
+          var defaultSelection = $root.find("select[data-prop-name='defaultRepoId']");
+          debugger;
+          $(defaultSelection).val('zzzz').trigger('change');
+          m.redraw(true);
+
+          editRepositoryBox = $root.find('.repository');
+          var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
+            return $(label).text();
+          });
+
+          var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
+            return $(span).text();
+          });
+
+          debugger;
+          expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
+          debugger;
+          expect(editRepositoryInformation).toEqual(['Name', 'Deb plugin', 'http://', 'first', '***********']);
+
+        });
 
         describe("Repository modal actions", function () {
           var deferred, requestArgs;
