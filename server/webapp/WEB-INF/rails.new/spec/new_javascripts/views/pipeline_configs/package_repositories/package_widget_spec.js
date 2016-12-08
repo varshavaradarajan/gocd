@@ -204,6 +204,30 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
         }
       };
 
+      var secondPackageConfig = {
+        id:            'secondPackageId',
+        name:          'secondPackageName',
+        auto_update:   false,
+        configuration: [
+          {
+            key:   'PACKAGE_NAME',
+            value: 'package'
+          },
+          {
+            key:   'VERSION_SPEC',
+            value: 'version'
+          },
+          {
+            key:   'ARCHITECTURE',
+            value: 'war'
+          }
+        ],
+        package_repo:  {
+          id:   'repo-id',
+          name: 'repoName'
+        }
+      };
+
       var removeModal = function () {
         $('.modal-parent').each(function (_i, elem) {
           $(elem).data('modal').destroy();
@@ -237,6 +261,16 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
 
         jasmine.Ajax.stubRequest('/go/api/admin/packages/packageId', undefined, 'GET').andReturn({
           responseText: JSON.stringify(packageConfig),
+          status:       200
+        });
+
+        jasmine.Ajax.stubRequest('/go/api/admin/packages/secondPackageId', undefined, 'GET').andReturn({
+          responseText: JSON.stringify(secondPackageConfig),
+          status:       200
+        });
+
+        jasmine.Ajax.stubRequest('/go/api/admin/plugin_info/deb', undefined, 'GET').andReturn({
+          responseText: JSON.stringify(debPluginInfoJSON),
           status:       200
         });
 
@@ -315,95 +349,109 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
         });
 
 
-        //it('should change the package on selection in the package dropdown', function () {
-        //  setMaterialWithPackage();
-        //  var packageInfo      = $root.find('.package-selector');
-        //  var defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
-        //  expect(defaultSelection).toHaveValue('packageId');
-        //
-        //
-        //  //mount(pkgMaterial);
-        //
-        //  $(defaultSelection).val('secondPackageId');
-        //  m.redraw(true);
-        //
-        //  defaultSelection = $(packageInfo).find("select[data-prop-name='defaultRepoId']");
-        //  debugger;
-        //  expect($(defaultSelection).find("option:selected")).toHaveText('secondPackageName')
-        //});
+        it('should change the package on selection in the package dropdown', function () {
+          setMaterialWithPackage();
+          var packageInfo      = $root.find('.package-selector');
+          var defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
+          expect(defaultSelection).toHaveValue('packageId');
 
-        //it('should chagen the edit repository information on change of repository selector', function () {
-        //  setMaterialWithDebainRepository();
-        //  changeRepositorySelector();
-        //
-        //  var editRepositoryBox = $root.find('.repository');
-        //  expect($(editRepositoryBox).find('button')).toExist();
-        //
-        //  var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-        //    return $(label).text();
-        //  });
-        //
-        //  var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-        //    return $(span).text();
-        //  });
-        //
-        //  expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
-        //  expect(editRepositoryInformation).toEqual(['repo', 'Deb plugin', 'http://', 'first', '***********']);
-        //
-        //});
 
-        //describe("Repository modal actions", function () {
-        //  var deferred, requestArgs;
-        //
-        //  beforeEach(function () {
-        //    setMaterialWithDebainRepository();
-        //    deferred = $.Deferred();
-        //    spyOn(m, 'request').and.returnValue(deferred.promise());
-        //  });
-        //
-        //  afterEach(function () {
-        //    removeModal();
-        //  });
-        //
-        //  it('should reveal the new repository modal on click of the create new repository button', function () {
-        //    var createRepoButton = $root.find(".add-button");
-        //    $(createRepoButton[0]).click();
-        //    m.redraw(true);
-        //    expect($('.reveal:visible')).toBeInDOM();
-        //  });
-        //
-        //  it('should reveal the edit repository modal on click of the edit button', function () {
-        //    var editRepoButton = $root.find('.edit');
-        //    $(editRepoButton).click();
-        //    m.redraw(true);
-        //    expect($('.reveal:visible')).toBeInDOM();
-        //  });
-        //
-        //  it('should post to repositories url on click of the save button', function () {
-        //    var createRepoButton = $root.find(".add-button");
-        //    $(createRepoButton[0]).click();
-        //    m.redraw(true);
-        //    var saveButton = $.find('.reveal:visible .modal-buttons .save');
-        //    $(saveButton).click();
-        //    m.redraw(true);
-        //    requestArgs = m.request.calls.all()[2].args[0];
-        //    expect(requestArgs.url).toBe('/go/api/admin/repositories');
-        //    expect(requestArgs.method).toBe('POST');
-        //  });
-        //
-        //  it('should put to repositories url on click of the save button while editing', function () {
-        //    var editRepoButton = $root.find(".edit");
-        //    $(editRepoButton).click();
-        //    m.redraw(true);
-        //    var saveButton = $.find('.reveal:visible .modal-buttons .save');
-        //    $(saveButton).click();
-        //    m.redraw(true);
-        //    requestArgs = m.request.calls.all()[1].args[0];
-        //
-        //    expect(requestArgs.url).toBe('/go/api/admin/repositories/e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
-        //    expect(requestArgs.method).toBe('PUT');
-        //  });
-        //});
+          $(defaultSelection).val('secondPackageId');
+          m.redraw(true);
+
+          defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
+          expect($(defaultSelection).find("option:selected")).toHaveText('secondPackageName');
+        });
+
+        it('should change the edit package information on change of package selector', function () {
+
+          setMaterialWithPackage();
+          var packageInfo      = $root.find('.package-selector');
+          var editRepositoryBox = $root.find('.package');
+          expect($(editRepositoryBox).find('button')).toExist();
+
+          var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
+            return $(label).text();
+          });
+
+          var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
+            return $(span).text();
+          });
+
+          expect(editRepositoryLabelNames).toEqual(['Name', 'Auto_update', 'Package_name', 'Version_spec', 'Architecture']);
+          expect(editRepositoryInformation).toEqual(['packageName', 'false', 'plugin', 'version', 'jar']);
+
+
+          var defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
+          $(defaultSelection).val('secondPackageId').trigger('change');
+          m.redraw(true);
+
+          editRepositoryBox = $root.find('.package');
+          editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
+            return $(label).text();
+          });
+
+          editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
+            return $(span).text();
+          });
+
+          expect(editRepositoryLabelNames).toEqual(['Name', 'Auto_update', 'Package_name', 'Version_spec', 'Architecture']);
+          expect(editRepositoryInformation).toEqual(['secondPackageName', 'false', 'package', 'version', 'war']);
+
+        });
+
+        describe("Repository modal actions", function () {
+          var deferred, requestArgs;
+
+          beforeEach(function () {
+            setMaterialWithPackage();
+            deferred = $.Deferred();
+            spyOn(m, 'request').and.returnValue(deferred.promise());
+          });
+
+          afterEach(function () {
+            removeModal();
+          });
+
+          it('should reveal the new package modal on click of the create new package button', function () {
+            var createPackageButton = $root.find(".no-package .add-button");
+            $(createPackageButton[0]).click();
+            m.redraw(true);
+            expect($('.reveal:visible')).toBeInDOM();
+          });
+
+          it('should reveal the edit package modal on click of the edit button', function () {
+            var editPackageButton = $root.find('.package .edit');
+            $(editPackageButton).click();
+            m.redraw(true);
+            expect($('.reveal:visible')).toBeInDOM();
+          });
+
+          it('should post to packages url on click of the save button', function () {
+            var createPackageButton = $root.find(".no-package .add-button");
+            $(createPackageButton[0]).click();
+            m.redraw(true);
+            var saveButton = $.find('.reveal:visible .modal-buttons .save');
+            $(saveButton).click();
+            m.redraw(true);
+            requestArgs = m.request.calls.all()[2].args[0];
+            expect(requestArgs.url).toBe('/go/api/admin/packages');
+            expect(requestArgs.method).toBe('POST');
+          });
+
+          it('should put to packages url on click of the save button while editing', function () {
+            var editPackageButton = $root.find(".package .edit");
+            $(editPackageButton).click();
+            m.redraw(true);
+            var saveButton = $.find('.reveal:visible .modal-buttons .save');
+            $(saveButton).click();
+            m.redraw(true);
+            requestArgs = m.request.calls.all()[1].args[0];
+
+            expect(requestArgs.url).toBe('/go/api/admin/packages/packageId');
+            expect(requestArgs.method).toBe('PUT');
+          });
+        });
 
       });
     });
