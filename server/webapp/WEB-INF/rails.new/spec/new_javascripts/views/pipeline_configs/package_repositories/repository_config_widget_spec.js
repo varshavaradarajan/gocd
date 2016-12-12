@@ -146,8 +146,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       };
 
       var repository2JSON = {
-        "repo_id":         "zzzz",
-        "name":            "zzzz",
+        "repo_id":         "repo2",
+        "name":            "repo2Name",
         "plugin_metadata": {
           "id":      "deb",
           "version": "1"
@@ -202,7 +202,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           status:       200
         });
 
-        jasmine.Ajax.stubRequest('/go/api/admin/repositories/zzzz', undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/admin/repositories/repo2', undefined, 'GET').andReturn({
           responseText: JSON.stringify(repository2JSON),
           status:       200
         });
@@ -284,11 +284,11 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           var defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
           expect(defaultSelection).toHaveValue('e9745dc7-aaeb-48a8-a22a-fa206ad0637e');
 
-          $(defaultSelection).val('zzzz');
+          $(defaultSelection).val('repo2');
           m.redraw(true);
 
           defaultSelection = $(repositoryInfo).find("select[data-prop-name='defaultRepoId']");
-          expect($(defaultSelection).find("option:selected")).toHaveText('zzzz');
+          expect($(defaultSelection).find("option:selected")).toHaveText('repo2Name');
 
         });
 
@@ -309,10 +309,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
           expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
           expect(editRepositoryInformation).toEqual(['repo', 'Deb plugin', 'http://', 'first', '***********']);
 
-
           var defaultSelection = $root.find("select[data-prop-name='defaultRepoId']");
-          debugger;
-          $(defaultSelection).val('zzzz').trigger('change');
+          $(defaultSelection).val('repo2').trigger('change');
           m.redraw(true);
 
           editRepositoryBox = $root.find('.repository');
@@ -324,10 +322,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
             return $(span).text();
           });
 
-          debugger;
           expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
-          debugger;
-          expect(editRepositoryInformation).toEqual(['Name', 'Deb plugin', 'http://', 'first', '***********']);
+          expect(editRepositoryInformation).toEqual(['repo2Name', 'Deb plugin', 'http://', 'first', '***********']);
 
         });
 

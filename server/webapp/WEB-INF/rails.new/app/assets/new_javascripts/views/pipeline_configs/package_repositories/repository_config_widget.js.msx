@@ -126,7 +126,8 @@ define([
       });
 
       var ctrl = {
-        selectRepository: function (id) {
+        selectRepository: function () {
+          var id = args.defaultRepoId();
           Repositories.findById(id).then(function (repository) {
             args.material.repository(repository);
           });
@@ -147,13 +148,12 @@ define([
       return (
         <f.row class='repo-selector'>
           <f.select
-            value={args.defaultRepoId}
             model={args}
             attrName="defaultRepoId"
             items={items}
             size={6}
             largeSize={2}
-            onchange={ctrl.selectRepository.bind(ctrl, args.defaultRepoId())}
+            onchange={ctrl.selectRepository}
           />
         </f.row>
       );
@@ -163,10 +163,17 @@ define([
   var RepositoryWidget = {
     controller: function (args) {
 
+      var temp = function() {
+        var headOfRepositories;
+        if(!_.isEmpty(_.head(Repositories()))) {
+          headOfRepositories = _.head(Repositories()).id();
+        }
+        return _.isNil(args.material.repository()) ? headOfRepositories : args.material.repository().id();
+      };
+
       var ctrl = {
-        defaultRepoId:     function () {
-          return _.isNil(args.material.repository()) ? _.head(Repositories()).id : args.material.repository().id;
-        },
+
+        defaultRepoId: m.prop(temp()),
 
         create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, performOperation) {
           var vm    = new Repositories.vm();
@@ -210,7 +217,7 @@ define([
           <NewRepositoryWidget material={args.material}
                                create={ctrl.create}/>
           {!_.isNil(repository()) || !_.isEmpty(Repositories()) ?
-            <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
+            <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId}/> : ''}
           {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
                                                               create={ctrl.create}/> }
           {!_.isNil(repository()) ? <PackageWidget material={args.material}/> : ''}
