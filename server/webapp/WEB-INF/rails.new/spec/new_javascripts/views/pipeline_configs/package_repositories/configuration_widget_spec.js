@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/configuration_widget", "models/pipeline_configs/materials",
-    'models/shared/plugin_configurations'],
-  function ($, m, ConfigurationWidget, Materials, PluginConfigurations) {
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/configuration_widget", 'models/shared/plugin_configurations'],
+  function ($, m, ConfigurationWidget, PluginConfigurations) {
 
     describe("ConfigurationWidget", function () {
       var $root = $('#mithril-mount-point'), root = $root.get(0);
@@ -72,7 +71,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
         $(input).val('http://newrepositoryvalue').trigger('input');
         m.redraw(true);
         expect(configuration.value()).toBe('http://newrepositoryvalue');
-      })
+      });
 
     });
   });

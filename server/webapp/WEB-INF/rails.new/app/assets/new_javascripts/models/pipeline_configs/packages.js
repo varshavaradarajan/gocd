@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos',
-    'models/shared/plugin_configurations'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes, Repositories, PluginInfos, PluginConfigurations) {
+define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/errors', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/plugin_infos', 'models/shared/plugin_configurations'],
+  function (m, _, s, mrequest, Errors, Validatable, Routes, PluginInfos, PluginConfigurations) {
 
     var Packages             = m.prop([]);
     Packages.packageIdToEtag = {};
@@ -100,11 +99,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
     Packages.Package.initialize = function (repository, configurations) {
       return new Packages.Package({
+        /* eslint-disable camelcase */
         configuration: configProperties(configurations),
         package_repo:  {
           id:   repository.id(),
           name: repository.name()
         }
+        /* eslint-enable camelcase */
       });
     };
 

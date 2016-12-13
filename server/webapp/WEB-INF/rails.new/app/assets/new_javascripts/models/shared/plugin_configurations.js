@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'models/pipeline_configs/encrypted_value'
-], function (m, s, Mixins, Validatable, EncryptedValue) {
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'models/pipeline_configs/encrypted_value'
+], function (m, _, s, Mixins, Validatable, EncryptedValue) {
 
   function plainOrCipherValue(data) {
     if (data.encrypted_value) {

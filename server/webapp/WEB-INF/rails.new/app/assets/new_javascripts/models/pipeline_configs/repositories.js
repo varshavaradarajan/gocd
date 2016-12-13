@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value',  'models/pipeline_configs/plugin_infos', 'models/validatable_mixin', 'js-routes',
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors',  'models/pipeline_configs/plugin_infos', 'models/validatable_mixin', 'js-routes',
   'models/shared/plugin_configurations'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, PluginInfos, Validatable, Routes, PluginConfigurations) {
+  function (m, _, s, Mixins, mrequest, Errors, PluginInfos, Validatable, Routes, PluginConfigurations) {
 
     var Repositories          = m.prop([]);
     Repositories.repoIdToEtag = {};
@@ -103,11 +103,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
     Repositories.Repository.initialize = function (pluginInfo, configurations) {
       return new Repositories.Repository({
+        /* eslint-disable camelcase */
         plugin_metadata: {
           id:      pluginInfo.id(),
           version: pluginInfo.version()
         },
         configuration:   configProperties(configurations)
+        /* eslint-enable camelcase */
       });
     };
 
@@ -119,7 +121,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         });
         var repository               = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
         repoForEdit(repository);
-      })
+      });
     };
 
     var configProperties = function (configurations) {

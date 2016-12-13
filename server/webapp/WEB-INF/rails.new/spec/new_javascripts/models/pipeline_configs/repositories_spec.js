@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
-  function ($, m, _, Repositories) {
+define(['jquery', 'mithril', 'models/pipeline_configs/repositories'],
+  function ($, m, Repositories) {
     describe('Repositories', function () {
       describe('init', function () {
         var requestArgs;
@@ -159,11 +159,13 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           });
 
           it('should update etag cache on success', function () {
+            /* eslint-disable camelcase */
             var xhr = {
               status:            200,
               getResponseHeader: m.prop(),
               responseText:      JSON.stringify({repo_id: 'new_id'})
             };
+            /* eslint-enable camelcase */
 
             spyOn(xhr, 'getResponseHeader').and.returnValue('etag_for_repo');
 
@@ -251,6 +253,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
 
         beforeAll(function () {
           Repositories([
+            /* eslint-disable camelcase */
             new Repositories.Repository({
               repo_id:         'repo_id_1',
               name:            'repo_1',
@@ -264,6 +267,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
               plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
               _embedded: {packages: []}
             })
+            /* eslint-enable camelcase */
           ]);
 
           deferred = $.Deferred();
@@ -328,6 +332,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
       describe('filterByPluginId', function () {
         beforeAll(function () {
           Repositories([
+            /* eslint-disable camelcase */
             new Repositories.Repository({
               repo_id:              'repo_id_1',
               plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
@@ -344,6 +349,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
               plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
               _embedded: {packages: []}
             })
+            /* eslint-enable camelcase */
           ]);
         });
 

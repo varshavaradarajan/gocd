@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/packages', 'models/pipeline_configs/repositories'],
-  function ($, m, _, Packages, Repositories) {
+define(['jquery', 'mithril', 'models/pipeline_configs/packages'],
+  function ($, m, Packages) {
     describe('packages', function () {
       describe('package', function () {
         describe('constructor', function () {
@@ -54,10 +54,12 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/packages', 'mode
           var packageMaterial, requestArgs, deferred;
 
           packageMaterial = new Packages.Package({
+            /* eslint-disable camelcase */
             id:            'packageId',
             name:          'packageName',
             package_repo:  {id: 'repo-id', name: 'repoName'},
             configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+            /* eslint-enable camelcase */
           });
 
           beforeAll(function () {
