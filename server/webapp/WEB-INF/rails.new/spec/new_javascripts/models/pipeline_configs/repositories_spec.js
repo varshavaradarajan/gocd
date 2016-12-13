@@ -308,10 +308,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           expect(Repositories.findById('invalid_plugin_id')).toBe(null);
         });
 
-        it('should stop page redraw', function () {
-          //expect(requestArgs.background).toBe(false);
-        });
-
         it('should extract and cache etag for the repository', function () {
           var xhr = {
             getResponseHeader: m.prop()

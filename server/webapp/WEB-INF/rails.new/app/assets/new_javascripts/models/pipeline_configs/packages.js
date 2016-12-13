@@ -139,16 +139,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
     };
 
-    Packages.init = function (repoId) {
-      Repositories.findById(repoId).then(function (repository) {
-
-        var packagesFromRepository = repository.packages().mapPackages(function (packageMaterial) {
-          return new Packages.Package({id: packageMaterial.id(), name: packageMaterial.name()});
-        });
-        Packages(packagesFromRepository);
-      });
-    };
-
     Packages.findById = function (id) {
 
       var extract = function (xhr) {

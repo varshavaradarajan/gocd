@@ -17,43 +17,7 @@
 define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/packages', 'models/pipeline_configs/repositories'],
   function ($, m, _, Packages, Repositories) {
     describe('packages', function () {
-      //describe('init', function () {
-      //  var requestArgs;
-      //
-      //  beforeEach(function () {
-      //    jasmine.Ajax.install();
-      //    jasmine.Ajax.stubRequest(/\/api\/admin\/repositories\/repo_id/).andReturn({
-      //      "responseText": JSON.stringify({_embedded: {packages: [{id: "one", name: "test"}]}}),
-      //      "status":       200
-      //    });
-      //    jasmine.Ajax.stubRequest(/\/api\/admin\/repositories/).andReturn({
-      //      "responseText": JSON.stringify({_embedded: {package_repositories: {_embedded: {packages: [{id: "one", name: "test"}]}}}}),
-      //      "status":       200
-      //    });
-      //  });
-      //
-      //  afterAll(function () {
-      //    jasmine.Ajax.uninstall();
-      //  });
-      //
-      //  it("should fetch all packages' partial information for a given repository", function () {
-      //    spyOn(m, 'request').and.returnValue($.Deferred());
-      //    Packages.init("repo_id");
-      //
-      //    requestArgs = m.request.calls.mostRecent().args[0];
-      //
-      //    expect(requestArgs.method).toBe('GET');
-      //    expect(requestArgs.url).toBe('/go/api/admin/repositories/repo_id');
-      //  });
-      //
-      //  it('should unwrap the response data to return list of repositories', function () {
-      //    Repositories.init();
-      //    Packages.init('repo_id');
-      //    expect(Packages(), [{id:"one", name:"test"}]);
-      //  });
-      //});
-
-      describe('pacakge', function () {
+      describe('package', function () {
         describe('constructor', function () {
           var packageMaterial;
           beforeAll(function () {
@@ -280,10 +244,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/packages', 'mode
           requestArgs = m.request.calls.mostRecent().args[0];
 
           expect(requestArgs.type).toBe(Packages.Package);
-        });
-
-        it('should return null if no package found for the given id', function () {
-          //expect(Packages.findById('invalid_package_id')).toBe(null);
         });
 
         it('should stop page redraw', function () {
