@@ -40,12 +40,12 @@ define([
           return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
 
-        performOperation: function (vm, modal) {
+        editPackage:     function (vm, modal) {
           args.packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
         },
 
         update:         function () {
-          args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.performOperation);
+          args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.editPackage);
         }
       };
       return ctrl;
@@ -88,11 +88,11 @@ define([
   var NewPackageWidget = {
     controller: function (args) {
       var ctrl = {
-        performOperation: function (vm, modal) {
+        createPackage: function (vm, modal) {
           args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
         },
-        create: function () {
-          args.create(args.packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.performOperation);
+        create:        function () {
+          args.create(args.packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
         }
       };
       return ctrl;
@@ -157,7 +157,7 @@ define([
 
   var PackageWidget = {
     controller: function (args) {
-      var temp = function () {
+      var getMaterialReference = function () {
         if(args.material.repository().packages().countPackage() === 0) {
           return args.material.ref();
         }
@@ -177,7 +177,7 @@ define([
           return this.packageForEdit;
         },
 
-        defaultPackageId: m.prop(temp()),
+        defaultPackageId: m.prop(getMaterialReference()),
 
         create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
           var vm             = new Packages.vm();

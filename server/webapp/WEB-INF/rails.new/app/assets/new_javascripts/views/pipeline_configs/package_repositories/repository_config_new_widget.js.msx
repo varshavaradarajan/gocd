@@ -23,14 +23,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
 
         var initializeRepository = function (pluginId) {
-          PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
-            var allConfigurations = pluginInfo.configurations();
-            var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
-              return configuration.type === 'repository';
-            });
-            var repository = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
-            args.repoForEdit(repository);
-          });
+          Repositories.Repository.setRepositoryForEdit(args.repoForEdit, pluginId);
         };
 
         var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
@@ -49,17 +42,17 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
       },
 
       view: function (ctrl, args) {
-        var errors = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
+        var errors      = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
         var repoForEdit = args.repoForEdit;
 
         var items = [];
         _.each(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
-          var item = {};
-          item['id'] = pluginInfo.id();
+          var item     = {};
+          item['id']   = pluginInfo.id();
           item['text'] = pluginInfo.name();
           items.push(item);
         });
-        
+
         return (
           <div class='modal-content'>
             <div class='modal-header'>
@@ -89,8 +82,8 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                 />
               </f.row>
 
-              {repoForEdit().configuration().mapConfigurations(function(configuration) {
-                return (<RepositoryConfigurationWidget configuration={configuration} />);
+              {repoForEdit().configuration().mapConfigurations(function (configuration) {
+                return (<RepositoryConfigurationWidget configuration={configuration}/>);
               }, this)}
 
             </div>

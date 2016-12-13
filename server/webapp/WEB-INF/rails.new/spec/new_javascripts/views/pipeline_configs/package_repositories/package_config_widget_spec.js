@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/package_widget", "models/pipeline_configs/materials",
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/package_config_widget", "models/pipeline_configs/materials",
     'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'],
-  function ($, m, PackageWidget, Materials, Packages, Repositories, PluginInfos) {
+  function ($, m, PackageConfigWidget, Materials, Packages, Repositories, PluginInfos) {
 
     describe("Package Widget", function () {
       var $root = $('#mithril-mount-point'), root = $root.get(0);
@@ -236,7 +236,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
 
       var mount = function (material) {
         m.mount(root,
-          m.component(PackageWidget,
+          m.component(PackageConfigWidget,
             {
               'material': material
             })
