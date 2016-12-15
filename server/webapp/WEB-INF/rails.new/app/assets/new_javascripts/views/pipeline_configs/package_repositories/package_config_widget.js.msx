@@ -124,9 +124,7 @@ define([
 
       return {
         selectPackage: function () {
-          var packageId = args.defaultPackageId();
-          args.material.ref(packageId);
-          debugger;
+          var packageId = args.material.ref();
           args.getPackageForEdit(packageId);
         }
       };
@@ -144,8 +142,8 @@ define([
       return (
         <f.row class='package-selector'>
           <f.select
-            model={args}
-            attrName="defaultPackageId"
+            model={args.material}
+            attrName="ref"
             items={items}
             size={6}
             largeSize={2}
@@ -168,7 +166,6 @@ define([
         return args.material.repository().packages().firstPackage().id();
       };
       var ctrl = {
-        //packageForEdit: m.prop(new Packages.Package({})),
 
         getPackageForEdit: function (packageId) {
           var packageForEdit = args.material.package;
@@ -179,7 +176,7 @@ define([
           return packageForEdit;
         },
 
-        defaultPackageId: m.prop(getMaterialReference()),
+        defaultPackageId: m.prop(args.material.ref()),
 
         create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
           var vm             = new Packages.vm();
@@ -212,7 +209,6 @@ define([
       return ctrl;
     },
     view:       function (ctrl, args) {
-      debugger;
       return (
         <div>
           {args.material.repository().packages().countPackage() === 0 ? '' :
