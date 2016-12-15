@@ -132,11 +132,12 @@ define([
 
       var ctrl = {
         selectRepository: function () {
+          debugger;
           var id = args.defaultRepoId();
           Repositories.findById(id).then(function (repository) {
             args.material.repository(repository);
-            debugger;
             if (!repository.packages().countPackage() == 0) {
+              debugger;
               var packageId = repository.packages().firstPackage().id();
               Packages.getPackage(packageId, args.material.package, args.material.ref);
             }

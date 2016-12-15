@@ -123,8 +123,8 @@ define([
     controller: function (args) {
 
       return {
-        selectPackage: function () {
-          var packageId = args.material.ref();
+        selectPackage: function (packageId) {
+          args.material.ref(packageId);
           args.getPackageForEdit(packageId);
         }
       };
@@ -138,17 +138,19 @@ define([
         item['text'] = packageInfo.name();
         items.push(item);
       });
-
+      var material = args.material;
       return (
         <f.row class='package-selector'>
-          <f.select
-            model={args.material}
-            attrName="ref"
-            items={items}
-            size={6}
-            largeSize={2}
-            onchange={ctrl.selectPackage}
-          />
+          <select disabled={false}
+                  data-prop-name={"defaultPackageId"}
+                  onchange={m.withAttr('value', ctrl.selectPackage)}>
+            {_.map(items, function (item) {
+              debugger;
+              return (
+                <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
+              );
+            })}
+          </select>
         </f.row>
       );
     }
