@@ -66,22 +66,17 @@ define([
         : (<f.editButton class={null} onclick={ctrl.update}/>);
 
       return (
-        <div>
           <div class='package'>
             {editButton}
-            <f.row>
-              <ul>
+              <dl class="key-value-pair">
                 {_.map(data, function (v, k) {
-                  return (
-                    <li>
-                      <label class={_.toLower(k)}>{k}</label><span>{v}</span>
-                    </li>
-                  );
+                  return [
+                    (<dt class={_.toLower(k)}>{k}</dt>),
+                    (<dd>{v}</dd>)
+                  ];
                 })}
-              </ul>
-            </f.row>
+              </dl>
           </div>
-        </div>
       );
     }
   };
