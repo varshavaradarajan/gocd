@@ -236,11 +236,15 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       });
     };
 
+    var repositoryVM = {
+      packageId: m.prop()
+    };
     var mount = function (material) {
       m.mount(root,
         m.component(PackageConfigWidget,
           {
-            'material': material
+            'material': material,
+            repositoryVM:repositoryVM
           })
       );
       m.redraw(true);
@@ -300,6 +304,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       var pluginInfo      = new PluginInfos.PluginInfo(debPluginInfoJSON);
       pkgMaterial.repository(repository);
       pkgMaterial.ref(packageMaterial.id());
+      pkgMaterial.package(packageMaterial);
       Repositories([repository]);
       PluginInfos([pluginInfo]);
       mount(pkgMaterial);
@@ -436,7 +441,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
           var saveButton = $.find('.reveal:visible .modal-buttons .save');
           $(saveButton).click();
           m.redraw(true);
-          requestArgs = m.request.calls.all()[2].args[0];
+          requestArgs = m.request.calls.all()[1].args[0];
           expect(requestArgs.url).toBe('/go/api/admin/packages');
           expect(requestArgs.method).toBe('POST');
         });
@@ -448,7 +453,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
           var saveButton = $.find('.reveal:visible .modal-buttons .save');
           $(saveButton).click();
           m.redraw(true);
-          requestArgs = m.request.calls.all()[1].args[0];
+          requestArgs = m.request.calls.all()[0].args[0];
 
           expect(requestArgs.url).toBe('/go/api/admin/packages/packageId');
           expect(requestArgs.method).toBe('PUT');
