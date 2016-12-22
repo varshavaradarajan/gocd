@@ -42,11 +42,11 @@ define([
           return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
 
-        editPackage:     function (packageForEdit, vm, modal) {
+        editPackage: function (packageForEdit, vm, modal) {
           packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
         },
 
-        update:         function () {
+        update: function () {
           args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.editPackage);
         }
       };
@@ -163,7 +163,7 @@ define([
 
         getPackageForEdit: function (packageId) {
           var packageForEdit = args.material.package;
-          if(packageId) {
+          if (packageId) {
             Packages.getPackage(packageId, packageForEdit, args.material.ref);
           }
           return packageForEdit;
@@ -172,14 +172,14 @@ define([
         defaultPackageId: m.prop(args.material.ref()),
 
         create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
-          var vm             = new Packages.vm();
+          var vm = new Packages.vm();
 
           var modal = new Modal({
             size:    'small',
             title:   modalTitle,
             body:    (<PackageConfigurationWidget packageForEdit={packageForEdit}
-                                              repository={repository()}
-                                              vm={vm}/>),
+                                                  repository={repository()}
+                                                  vm={vm}/>),
             onclose: function () {
               vm.reset();
               modal.destroy();
@@ -203,21 +203,25 @@ define([
     },
     view:       function (ctrl, args) {
       return (
-        <div>
+        <div class="row expanded">
+          <div class="columns medium-6">
+            {args.material.repository().packages().countPackage() === 0 ? '' :
+              <SelectPackageWidget material={args.material}
+                                   defaultPackageId={ctrl.defaultPackageId}
+                                   repositoryVM={args.repositoryVM}
+                                   getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
+          </div>
+          <div class="columns medium-6">
+            <NewPackageWidget material={args.material}
+                              repositoryVM={args.repositoryVM}
+                              create={ctrl.create}/>
+          </div>
+
           {args.material.repository().packages().countPackage() === 0 ? '' :
-            <SelectPackageWidget material={args.material}
-                                 defaultPackageId={ctrl.defaultPackageId}
-                                 repositoryVM={args.repositoryVM}
-                                 getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
-
-          <NewPackageWidget material={args.material}
-                            repositoryVM={args.repositoryVM}
-                            create={ctrl.create}/>
-
-          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={args.material.package}
-                                                                                                material={args.material}
-                                                                                                repositoryVM={args.repositoryVM}
-                                                                                                create={ctrl.create}/>}
+            <EditPackageWidget packageForEdit={args.material.package}
+                               material={args.material}
+                               repositoryVM={args.repositoryVM}
+                               create={ctrl.create}/>}
         </div>
       );
     }

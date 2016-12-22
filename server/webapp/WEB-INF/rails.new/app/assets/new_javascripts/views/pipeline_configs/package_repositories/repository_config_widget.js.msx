@@ -36,7 +36,7 @@ define([
 
       var ctrl = {
 
-        editRepository: function(repoForEdit, vm, modal, material) {
+        editRepository: function (repoForEdit, vm, modal, material) {
           repoForEdit().update().then(onSuccessOfRepoAPI.bind(this, vm, modal, material), onFailureOfRepoAPI.bind(this, vm));
         },
 
@@ -66,21 +66,17 @@ define([
         : (<f.editButton onclick={ctrl.update}/>);
 
       return (
-        <div>
-          <div class='repository'>
-            {editButton}
-            <f.row>
-              <ul>
-                {_.map(data, function (v, k) {
-                  return (
-                    <li>
-                      <label class={_.toLower(k)}>{k}</label><span>{v}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </f.row>
-          </div>
+        <div class='repository'>
+          {editButton}
+          <ul>
+            {_.map(data, function (v, k) {
+              return (
+                <li>
+                  <label class={_.toLower(k)}>{k}</label><span>{v}</span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       );
     }
@@ -89,7 +85,7 @@ define([
   var NewRepositoryWidget = {
     controller: function (args) {
       var ctrl = {
-        createRepository: function(repoForEdit, vm, modal, material) {
+        createRepository: function (repoForEdit, vm, modal, material) {
           repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, material), onFailureOfRepoAPI.bind(this, vm));
         },
 
@@ -103,23 +99,22 @@ define([
 
     view: function (ctrl) {
       return (
-        <f.row>
-          <f.column class='no-repo' size={4} largeSize={6} end>
-            {_.isEmpty(Repositories()) ?
-              <div>
-                <label>No repositories available.</label> <a class='add-button button' href="javascript:void(0)"
-                                                             onclick={ctrl.create}>Create New Repository</a></div>
-              : <a class='add-button button' href="javascript:void(0)"
-                   onclick={ctrl.create}/>}
 
-          </f.column>
-        </f.row>
+        <f.column class='no-repo' size={6} end>
+          {_.isEmpty(Repositories()) ?
+            <div>
+              <label>No repositories available.</label> <a class='add-button button' href="javascript:void(0)"
+                                                           onclick={ctrl.create}>Create New Repository</a></div>
+            : <a class='add-button button' href="javascript:void(0)"
+                 onclick={ctrl.create}/>}
+
+        </f.column>
       );
     }
   };
 
   var repositoryVM = {
-    packageId : m.prop()
+    packageId: m.prop()
   };
 
   var SelectRepositoryWidget = {
@@ -129,11 +124,10 @@ define([
         args.material.repository(repository);
         if (!repository.packages().countPackage() == 0) {
           var packageId = repository.packages().firstPackage().id();
-          debugger;
-          if(args.material.ref()) {
+          if (args.material.ref()) {
             packageId = args.material.ref();
           }
-          if(repositoryVM.packageId()) {
+          if (repositoryVM.packageId()) {
             packageId = repositoryVM.packageId();
           }
           Packages.getPackage(packageId, args.material.package, args.material.ref);
@@ -170,16 +164,14 @@ define([
       });
 
       return (
-        <f.row class='repo-selector'>
-          <f.select
-            model={args}
-            attrName="defaultRepoId"
-            items={items}
-            size={6}
-            largeSize={2}
-            onchange={ctrl.selectRepository}
-          />
-        </f.row>
+        <f.select
+          model={args}
+          attrName="defaultRepoId"
+          class="repo-selector"
+          items={items}
+          size={6}
+          onchange={ctrl.selectRepository}
+        />
       );
     }
   };
@@ -187,9 +179,9 @@ define([
   var RepositoryWidget = {
     controller: function (args) {
 
-      var temp = function() {
+      var temp = function () {
         var headOfRepositories;
-        if(!_.isEmpty(_.head(Repositories()))) {
+        if (!_.isEmpty(_.head(Repositories()))) {
           headOfRepositories = _.head(Repositories()).id();
         }
         return _.isNil(args.material.repository()) ? headOfRepositories : args.material.repository().id();
@@ -205,15 +197,15 @@ define([
             size:    'small',
             title:   modalTitle,
             body:    (<RepositoryConfigurationWidget repoForEdit={repoForEdit}
-                                        vm={vm}/>),
+                                                     vm={vm}/>),
             onclose: function () {
               vm.reset();
               modal.destroy();
             },
             buttons: [
               {
-                text: 'Check Repository Connection',
-                class: 'check_repo_connection primary',
+                text:    'Check Repository Connection',
+                class:   'check_repo_connection primary',
                 onclick: function () {
                   //TODO: implement the check repository API
                 }
@@ -237,15 +229,23 @@ define([
       var repository = args.material.repository;
 
       return (
-        <div>
-          <NewRepositoryWidget material={args.material}
-                               create={ctrl.create}/>
-          {!_.isNil(repository()) || !_.isEmpty(Repositories()) ?
-            <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId}/> : ''}
-          {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
-                                                              create={ctrl.create}/> }
-          {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}
-                                                         repositoryVM={repositoryVM}/> : ''}
+        <div class="row expanded">
+          <div class="columns medium-6">
+            <div class="row expanded">
+              {!_.isNil(repository()) || !_.isEmpty(Repositories()) ?
+                <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId}/> : ''}
+
+              <NewRepositoryWidget material={args.material}
+                                   create={ctrl.create}/>
+            </div>
+
+            {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
+                                                                create={ctrl.create}/> }
+          </div>
+          <div class="columns medium-6">
+            {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}
+                                                           repositoryVM={repositoryVM}/> : ''}
+          </div>
         </div>
       );
     }
