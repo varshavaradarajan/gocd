@@ -66,17 +66,17 @@ define([
         : (<f.editButton class={null} onclick={ctrl.update}/>);
 
       return (
-          <div class='package'>
-            {editButton}
-              <dl class="key-value-pair">
-                {_.map(data, function (v, k) {
-                  return [
-                    (<dt class={_.toLower(k)}>{k}</dt>),
-                    (<dd>{v}</dd>)
-                  ];
-                })}
-              </dl>
-          </div>
+        <div class='package'>
+          {editButton}
+          <dl class="key-value-pair">
+            {_.map(data, function (v, k) {
+              return [
+                (<dt class={_.toLower(k)}>{k}</dt>),
+                (<dd>{v}</dd>)
+              ];
+            })}
+          </dl>
+        </div>
       );
     }
   };
@@ -99,19 +99,17 @@ define([
 
     view: function (ctrl, args) {
       return (
-        <f.row>
-          <f.column class='no-package' size={4} largeSize={6} end>
-            {args.material.repository().packages().countPackage() === 0 ?
-              <div>
-                <label>No packages available in this repository.</label> <a class='add-button button'
-                                                                            href="javascript:void(0)"
-                                                                            onclick={ctrl.create}>Create New Package</a>
-              </div>
-              : <a class='add-button button' href="javascript:void(0)"
-                   onclick={ctrl.create}/>}
+        <div class='no-package'>
+          {args.material.repository().packages().countPackage() === 0 ?
+            <div>
+              <label>No packages available in this repository.</label> <a class='add-button button'
+                                                                          href="javascript:void(0)"
+                                                                          onclick={ctrl.create}>Create New Package</a>
+            </div>
+            : <a class='add-button button button-no-text' href="javascript:void(0)"
+                 onclick={ctrl.create}/>}
 
-          </f.column>
-        </f.row>
+        </div>
       );
     }
   };
@@ -137,17 +135,16 @@ define([
         items.push(item);
       });
       return (
-        <f.row class='package-selector'>
-          <select disabled={false}
-                  data-prop-name={"defaultPackageId"}
-                  onchange={m.withAttr('value', ctrl.selectPackage)}>
-            {_.map(items, function (item) {
-              return (
-                <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
-              );
-            })}
-          </select>
-        </f.row>
+        <select disabled={false}
+                data-prop-name={"defaultPackageId"}
+                class='package-selector'
+                onchange={m.withAttr('value', ctrl.selectPackage)}>
+          {_.map(items, function (item) {
+            return (
+              <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
+            );
+          })}
+        </select>
       );
     }
   };
@@ -198,18 +195,20 @@ define([
     },
     view:       function (ctrl, args) {
       return (
-        <div class="row expanded">
-          <div class="columns medium-6">
-            {args.material.repository().packages().countPackage() === 0 ? '' :
-              <SelectPackageWidget material={args.material}
-                                   defaultPackageId={ctrl.defaultPackageId}
-                                   repositoryVM={args.repositoryVM}
-                                   getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
-          </div>
-          <div class="columns medium-6">
-            <NewPackageWidget material={args.material}
-                              repositoryVM={args.repositoryVM}
-                              create={ctrl.create}/>
+        <div>
+          <div class="row expanded">
+            <div class="columns medium-6">
+              {args.material.repository().packages().countPackage() === 0 ? '' :
+                <SelectPackageWidget material={args.material}
+                                     defaultPackageId={ctrl.defaultPackageId}
+                                     repositoryVM={args.repositoryVM}
+                                     getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
+            </div>
+            <div class="columns medium-6">
+              <NewPackageWidget material={args.material}
+                                repositoryVM={args.repositoryVM}
+                                create={ctrl.create}/>
+            </div>
           </div>
 
           {args.material.repository().packages().countPackage() === 0 ? '' :

@@ -104,7 +104,7 @@ define([
             <div>
               <label>No repositories available.</label> <a class='add-button button' href="javascript:void(0)"
                                                            onclick={ctrl.create}>Create New Repository</a></div>
-            : <a class='add-button button' href="javascript:void(0)"
+            : <a class='add-button button-no-text button' href="javascript:void(0)"
                  onclick={ctrl.create}/>}
 
         </f.column>
@@ -178,7 +178,7 @@ define([
   var RepositoryWidget = {
     controller: function (args) {
 
-      var temp = function () {
+      var getDefaultRepoId = function () {
         var headOfRepositories;
         if (!_.isEmpty(_.head(Repositories()))) {
           headOfRepositories = _.head(Repositories()).id();
@@ -188,7 +188,7 @@ define([
 
       var ctrl = {
 
-        defaultRepoId: m.prop(temp()),
+        defaultRepoId: m.prop(getDefaultRepoId()),
 
         create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, performOperation) {
           var vm    = new Repositories.vm();
