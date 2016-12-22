@@ -20,9 +20,11 @@ define([
   'views/pipeline_configs/package_repositories/package_config_edit_widget'
 ], function (m, _, f, Modal, Packages, Repositories, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
 
-  var onSuccessOfPackageApi = function (vm, modal, material, data) {
+  var onSuccessOfPackageApi = function (vm, modal, material, repositoryVM, data) {
     vm.saveSuccess();
+    debugger;
     material.ref(data.id());
+    repositoryVM.packageId(data.id());
     Repositories.findById(material.repository().id()).then(function (repository) {
       material.repository(repository);
     });
@@ -41,7 +43,7 @@ define([
         },
 
         editPackage:     function (packageForEdit, vm, modal) {
-          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
         },
 
         update:         function () {
@@ -89,7 +91,7 @@ define([
     controller: function (args) {
       var ctrl = {
         createPackage: function (packageForEdit, vm, modal) {
-          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
         },
         create:        function () {
           var packageForEdit = m.prop(new Packages.Package({}));
@@ -125,7 +127,7 @@ define([
       return {
         selectPackage: function (packageId) {
           args.material.ref(packageId);
-          args.vm.packageId(packageId);
+          args.repositoryVM.packageId(packageId);
           args.getPackageForEdit(packageId);
         }
       };
@@ -139,14 +141,12 @@ define([
         item['text'] = packageInfo.name();
         items.push(item);
       });
-      var material = args.material;
       return (
         <f.row class='package-selector'>
           <select disabled={false}
                   data-prop-name={"defaultPackageId"}
                   onchange={m.withAttr('value', ctrl.selectPackage)}>
             {_.map(items, function (item) {
-              debugger;
               return (
                 <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
               );
@@ -159,15 +159,6 @@ define([
 
   var PackageWidget = {
     controller: function (args) {
-      var getMaterialReference = function () {
-        if(args.material.repository().packages().countPackage() === 0) {
-          return args.material.ref();
-        }
-        if(args.material.ref()) {
-          return args.material.ref();
-        }
-        return args.material.repository().packages().firstPackage().id();
-      };
       var ctrl = {
 
         getPackageForEdit: function (packageId) {
@@ -216,14 +207,16 @@ define([
           {args.material.repository().packages().countPackage() === 0 ? '' :
             <SelectPackageWidget material={args.material}
                                  defaultPackageId={ctrl.defaultPackageId}
-                                 vm={args.vm}
+                                 repositoryVM={args.repositoryVM}
                                  getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
 
           <NewPackageWidget material={args.material}
+                            repositoryVM={args.repositoryVM}
                             create={ctrl.create}/>
 
           {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={args.material.package}
                                                                                                 material={args.material}
+                                                                                                repositoryVM={args.repositoryVM}
                                                                                                 create={ctrl.create}/>}
         </div>
       );

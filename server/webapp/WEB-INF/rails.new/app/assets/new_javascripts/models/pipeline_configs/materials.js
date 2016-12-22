@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
-  'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/validatable_mixin', 'js-routes'], function (m, _, s, Mixins, EncryptedValue, SCMs, Packages, Repositories, Validatable, Routes) {
+define([
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
+  'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/validatable_mixin', 'js-routes'
+], function (m, _, s, Mixins, EncryptedValue, SCMs, Packages, Repositories, Validatable, Routes) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -439,16 +441,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Materials.Material.PackageMaterial = function (data) {
 
     var initializeRepo = function (repo) {
-      debugger;
       Packages.findById(data.ref).then(function (packageMaterial) {
-        debugger;
         Repositories.findById(packageMaterial.packageRepo().id()).then(function (repository) {
-          debugger;
           repo(repository);
         });
       });
     };
-    debugger;
     Materials.Material.call(this, "package", true, data);
     this.repository = m.prop(data.repository);
     this.name       = m.prop('');
@@ -461,46 +459,45 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       };
     };
 
-    if(data.ref) {
+    if (data.ref) {
       initializeRepo(this.repository);
     }
   };
 
-    Materials.Material.PackageMaterial.fromJSON = function (data) {
-      var attr = data.attributes || {};
-      return new Materials.Material.PackageMaterial({
-        ref:    attr.ref,
-        errors: data.errors
-      });
+  Materials.Material.PackageMaterial.fromJSON = function (data) {
+    var attr = data.attributes || {};
+    return new Materials.Material.PackageMaterial({
+      ref:    attr.ref,
+      errors: data.errors
+    });
+  };
+
+  Materials.isBuiltInType = function (type) {
+    return _.hasIn(Materials.Types, type);
+  };
+
+  Materials.Types = {
+    git:        {type: Materials.Material.Git, description: "Git"},
+    svn:        {type: Materials.Material.SVN, description: "SVN"},
+    hg:         {type: Materials.Material.Mercurial, description: "Mercurial"},
+    p4:         {type: Materials.Material.Perforce, description: "Perforce"},
+    tfs:        {type: Materials.Material.TFS, description: "Team Foundation Server"},
+    dependency: {type: Materials.Material.Dependency, description: "Pipeline Dependency"}
+  };
+
+
+  Materials.Material.fromJSON = function (data) {
+    if (Materials.isBuiltInType(data.type)) {
+      return Materials.Types[data.type].type.fromJSON(data || {});
+    }
+
+    var nonBuiltInTypes = {
+      plugin:  Materials.Material.PluggableMaterial,
+      package: Materials.Material.PackageMaterial
     };
 
-    Materials.isBuiltInType = function (type) {
-      return _.hasIn(Materials.Types, type);
-    };
+    return nonBuiltInTypes[data.type].fromJSON(data || {});
+  };
 
-    Materials.Types = {
-      git:        {type: Materials.Material.Git, description: "Git"},
-      svn:        {type: Materials.Material.SVN, description: "SVN"},
-      hg:         {type: Materials.Material.Mercurial, description: "Mercurial"},
-      p4:         {type: Materials.Material.Perforce, description: "Perforce"},
-      tfs:        {type: Materials.Material.TFS, description: "Team Foundation Server"},
-      dependency: {type: Materials.Material.Dependency, description: "Pipeline Dependency"}
-    };
-
-
-    Materials.Material.fromJSON = function (data) {
-      if (Materials.isBuiltInType(data.type)) {
-        return Materials.Types[data.type].type.fromJSON(data || {});
-      }
-
-      var nonBuiltInTypes = {
-        plugin:  Materials.Material.PluggableMaterial,
-        package: Materials.Material.PackageMaterial
-      };
-
-      return nonBuiltInTypes[data.type].fromJSON(data || {});
-    };
-
-    return Materials;
-  }
-  );
+  return Materials;
+});

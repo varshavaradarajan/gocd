@@ -118,7 +118,7 @@ define([
     }
   };
 
-  var vm = {
+  var repositoryVM = {
     packageId : m.prop()
   };
 
@@ -129,12 +129,12 @@ define([
         args.material.repository(repository);
         if (!repository.packages().countPackage() == 0) {
           var packageId = repository.packages().firstPackage().id();
+          debugger;
           if(args.material.ref()) {
             packageId = args.material.ref();
           }
-          if(vm.packageId()) {
-            debugger;
-            packageId = vm.packageId();
+          if(repositoryVM.packageId()) {
+            packageId = repositoryVM.packageId();
           }
           Packages.getPackage(packageId, args.material.package, args.material.ref);
         }
@@ -143,12 +143,10 @@ define([
 
       var ctrl = {
         selectRepository: function () {
-          debugger;
           var id = args.defaultRepoId();
           Repositories.findById(id).then(function (repository) {
             args.material.repository(repository);
             if (!repository.packages().countPackage() == 0) {
-              debugger;
               var packageId = repository.packages().firstPackage().id();
               Packages.getPackage(packageId, args.material.package, args.material.ref);
             }
@@ -247,7 +245,7 @@ define([
           {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
                                                               create={ctrl.create}/> }
           {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}
-                                                         vm={vm}/> : ''}
+                                                         repositoryVM={repositoryVM}/> : ''}
         </div>
       );
     }
