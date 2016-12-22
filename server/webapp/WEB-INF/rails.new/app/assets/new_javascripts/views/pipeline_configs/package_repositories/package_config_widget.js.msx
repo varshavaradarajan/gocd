@@ -125,6 +125,7 @@ define([
       return {
         selectPackage: function (packageId) {
           args.material.ref(packageId);
+          args.vm.packageId(packageId);
           args.getPackageForEdit(packageId);
         }
       };
@@ -216,6 +217,7 @@ define([
           {args.material.repository().packages().countPackage() === 0 ? '' :
             <SelectPackageWidget material={args.material}
                                  defaultPackageId={ctrl.defaultPackageId}
+                                 vm={args.vm}
                                  getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
 
           <NewPackageWidget material={args.material}

@@ -118,6 +118,10 @@ define([
     }
   };
 
+  var vm = {
+    packageId : m.prop()
+  };
+
   var SelectRepositoryWidget = {
     controller: function (args) {
 
@@ -125,6 +129,9 @@ define([
         args.material.repository(repository);
         if (!repository.packages().countPackage() == 0) {
           var packageId = repository.packages().firstPackage().id();
+          if(vm.packageId()) {
+            packageId = vm.packageId();
+          }
           Packages.getPackage(packageId, args.material.package, args.material.ref);
         }
       });
@@ -235,7 +242,8 @@ define([
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId}/> : ''}
           {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
                                                               create={ctrl.create}/> }
-          {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}/> : ''}
+          {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}
+                                                         vm={vm}/> : ''}
         </div>
       );
     }
