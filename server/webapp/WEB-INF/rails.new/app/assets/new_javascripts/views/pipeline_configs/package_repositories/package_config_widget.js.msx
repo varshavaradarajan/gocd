@@ -173,7 +173,6 @@ define([
         getPackageForEdit: function (packageId) {
           var packageForEdit = args.material.package;
           if(packageId) {
-            debugger;
             Packages.getPackage(packageId, packageForEdit, args.material.ref);
           }
           return packageForEdit;

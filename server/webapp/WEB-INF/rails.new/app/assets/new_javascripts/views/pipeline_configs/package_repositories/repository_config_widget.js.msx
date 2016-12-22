@@ -129,7 +129,11 @@ define([
         args.material.repository(repository);
         if (!repository.packages().countPackage() == 0) {
           var packageId = repository.packages().firstPackage().id();
+          if(args.material.ref()) {
+            packageId = args.material.ref();
+          }
           if(vm.packageId()) {
+            debugger;
             packageId = vm.packageId();
           }
           Packages.getPackage(packageId, args.material.package, args.material.ref);
