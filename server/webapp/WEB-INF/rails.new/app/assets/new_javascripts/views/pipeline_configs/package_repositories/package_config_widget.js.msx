@@ -170,7 +170,7 @@ define([
           var vm = new Packages.vm();
 
           var modal = new Modal({
-            size:    'small',
+            size:    'tiny',
             title:   modalTitle,
             body:    (<PackageConfigurationWidget packageForEdit={packageForEdit}
                                                   repository={repository()}
