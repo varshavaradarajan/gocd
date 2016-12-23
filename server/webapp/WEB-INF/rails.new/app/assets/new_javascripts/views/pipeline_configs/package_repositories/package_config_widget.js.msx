@@ -98,19 +98,20 @@ define([
     },
 
     view: function (ctrl, args) {
-      return (
-        <div class='no-package'>
-          {args.material.repository().packages().countPackage() === 0 ?
-            <div>
-              <label>No packages available in this repository.</label> <a class='add-button button'
-                                                                          href="javascript:void(0)"
-                                                                          onclick={ctrl.create}>Create New Package</a>
-            </div>
-            : <a class='add-button button button-no-text' href="javascript:void(0)"
-                 onclick={ctrl.create}/>}
 
-        </div>
-      );
+      if (args.material.repository().packages().countPackage() === 0) {
+        return (
+          <div class="columns medium-8 no-package">
+            <label>No packages available in this repository.</label> <a class='add-button button'
+                                                                        href="javascript:void(0)"
+                                                                        onclick={ctrl.create}>Create New Package</a>
+          </div>
+        )
+      }
+      return (
+        <div class="columns medium-6 no-package"><a class='add-button button button-no-text'
+                                                    href="javascript:void(0)"
+                                                    onclick={ctrl.create}/></div>)
     }
   };
 
@@ -135,16 +136,18 @@ define([
         items.push(item);
       });
       return (
-        <select disabled={false}
-                data-prop-name={"defaultPackageId"}
-                class='package-selector'
-                onchange={m.withAttr('value', ctrl.selectPackage)}>
-          {_.map(items, function (item) {
-            return (
-              <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
-            );
-          })}
-        </select>
+        <div class="columns medium-6">
+          <select disabled={false}
+                  data-prop-name={"defaultPackageId"}
+                  class='package-selector'
+                  onchange={m.withAttr('value', ctrl.selectPackage)}>
+            {_.map(items, function (item) {
+              return (
+                <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
+              );
+            })}
+          </select>
+        </div>
       );
     }
   };
@@ -195,20 +198,18 @@ define([
     },
     view:       function (ctrl, args) {
       return (
-        <div>
+        <span>
           <div class="row expanded">
-            <div class="columns medium-6">
-              {args.material.repository().packages().countPackage() === 0 ? '' :
-                <SelectPackageWidget material={args.material}
-                                     defaultPackageId={ctrl.defaultPackageId}
-                                     repositoryVM={args.repositoryVM}
-                                     getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
-            </div>
-            <div class="columns medium-6">
-              <NewPackageWidget material={args.material}
-                                repositoryVM={args.repositoryVM}
-                                create={ctrl.create}/>
-            </div>
+
+            {args.material.repository().packages().countPackage() === 0 ? '' :
+              <SelectPackageWidget material={args.material}
+                                   defaultPackageId={ctrl.defaultPackageId}
+                                   repositoryVM={args.repositoryVM}
+                                   getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
+
+            <NewPackageWidget material={args.material}
+                              repositoryVM={args.repositoryVM}
+                              create={ctrl.create}/>
           </div>
 
           {args.material.repository().packages().countPackage() === 0 ? '' :
@@ -216,7 +217,7 @@ define([
                                material={args.material}
                                repositoryVM={args.repositoryVM}
                                create={ctrl.create}/>}
-        </div>
+        </span>
       );
     }
   };
