@@ -193,7 +193,7 @@ define([
         create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, modalClass, performOperation) {
           var vm    = new Repositories.vm();
           var modal = new Modal({
-            size:    'tiny',
+            size:    'small',
             title:   modalTitle,
             class: modalClass,
             body:    (<RepositoryConfigurationWidget repoForEdit={repoForEdit}
