@@ -42,7 +42,7 @@ define([
 
         update: function () {
           var repoForEdit = m.prop(args.material.repository());
-          args.create(repoForEdit, RepositoryConfigEditWidget, 'Edit Repository', ctrl.editRepository);
+          args.create(repoForEdit, RepositoryConfigEditWidget, 'Edit Repository', 'edit-repository', ctrl.editRepository);
         },
 
         isPluginMissing: function () {
@@ -90,7 +90,7 @@ define([
 
         create: function () {
           var repoForEdit = m.prop(new Repositories.Repository({}));
-          args.create(repoForEdit, RepositoryConfigNewWidget, 'Add Repository', ctrl.createRepository);
+          args.create(repoForEdit, RepositoryConfigNewWidget, 'Add Repository', 'add-repository', ctrl.createRepository);
         }
       };
       return ctrl;
@@ -190,11 +190,12 @@ define([
 
         defaultRepoId: m.prop(getDefaultRepoId()),
 
-        create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, performOperation) {
+        create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, modalClass, performOperation) {
           var vm    = new Repositories.vm();
           var modal = new Modal({
-            size:    'small',
+            size:    'tiny',
             title:   modalTitle,
+            class: modalClass,
             body:    (<RepositoryConfigurationWidget repoForEdit={repoForEdit}
                                                      vm={vm}/>),
             onclose: function () {
@@ -204,7 +205,7 @@ define([
             buttons: [
               {
                 text:    'Check Repository Connection',
-                class:   'check_repo_connection primary',
+                class:   'check_repo_connection secondary',
                 onclick: function () {
                   //TODO: implement the check repository API
                 }
