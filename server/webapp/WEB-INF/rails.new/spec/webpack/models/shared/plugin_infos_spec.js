@@ -25,6 +25,9 @@ describe('PluginInfos', () => {
         "id":      "github.oauth.login",
         "version": "1",
         "type":    "authentication",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "GitHub OAuth Login",
           "version":                  "2.2",
@@ -50,6 +53,9 @@ describe('PluginInfos', () => {
         "id":      "github.oauth.login",
         "version": "1",
         "type":    "authentication",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "GitHub OAuth Login",
           "version":                  "2.2",
@@ -71,10 +77,13 @@ describe('PluginInfos', () => {
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "cd.go.contrib.elastic-agent.docker",
-        "version":        "1",
-        "type":           "elastic-agent",
-        "about":          {
+        "id":               "cd.go.contrib.elastic-agent.docker",
+        "version":          "1",
+        "type":             "elastic-agent",
+        "status":           {
+          "state": "active"
+        },
+        "about":            {
           "name":                     "Docker Elastic Agent Plugin",
           "version":                  "0.6.1",
           "target_go_version":        "16.12.0",
@@ -136,6 +145,9 @@ describe('PluginInfos', () => {
         "id":      "github.pr.status",
         "version": "1",
         "type":    "notification",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "GitHub Pull Requests status notifier",
           "version":                  "1.2",
@@ -157,10 +169,13 @@ describe('PluginInfos', () => {
   describe("PackageRepository", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "nuget",
-        "version":        "1",
-        "type":           "package-repository",
-        "about":          {
+        "id":                  "nuget",
+        "version":             "1",
+        "type":                "package-repository",
+        "status":              {
+          "state": "active"
+        },
+        "about":               {
           "name":                     "Nuget plugin",
           "version":                  "1.0.0",
           "target_go_version":        "15.3.0",
@@ -281,10 +296,13 @@ describe('PluginInfos', () => {
   describe("Task", () => {
     it("should deserialize", () => {
       const json = {
-        "id":      "docker-task",
-        "version": "1",
-        "type":    "task",
-        "about":   {
+        "id":            "docker-task",
+        "version":       "1",
+        "type":          "task",
+        "status":        {
+          "state": "active"
+        },
+        "about":         {
           "name":                     "Docker Task",
           "version":                  "0.1.27",
           "target_go_version":        "14.4.0",
@@ -354,11 +372,14 @@ describe('PluginInfos', () => {
   describe("SCM", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "github.pr",
-        "version":        "1",
-        "type":           "scm",
-        "about":          {
-          "name":                     "GitHub Pull Requests Builder",
+        "id":           "github.pr",
+        "version":      "1",
+        "type":         "scm",
+        "status":       {
+          "state": "active"
+        },
+        "about":        {
+          "name":                     "Github Pull Requests Builder",
           "version":                  "1.3.0-RC2",
           "target_go_version":        "15.1.0",
           "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
@@ -421,10 +442,13 @@ describe('PluginInfos', () => {
   describe("Authorization", () => {
     it("should deserialize", () => {
       const json = {
-        "id":             "cd.go.authorization.ldap",
-        "version":        "1",
-        "type":           "authorization",
-        "about":          {
+        "id":                   "cd.go.authorization.ldap",
+        "version":              "1",
+        "type":                 "authorization",
+        "status":               {
+          "state": "active"
+        },
+        "about":                {
           "name":                     "LDAP Authorization Plugin for GoCD",
           "version":                  "0.0.1",
           "target_go_version":        "16.12.0",
@@ -536,6 +560,9 @@ describe('PluginInfos', () => {
         "id":      "json.config.plugin",
         "version": "1",
         "type":    "configrepo",
+        "status":  {
+          "state": "active"
+        },
         "about":   {
           "name":                     "JSON Configuration Plugin",
           "version":                  "0.2",
@@ -563,6 +590,9 @@ describe('PluginInfos', () => {
       },
       "id":      "github.pr",
       "version": "1",
+      "status":  {
+        "state": "active"
+      },
       "about":   {
         "name":                     "GitHub Pull Requests Builder",
         "version":                  "1.3.0-RC2",
@@ -586,15 +616,17 @@ describe('PluginInfos', () => {
     });
   });
 
-  const verifyBasicProperties = (pluginInfo, {id, type, version, about}) => {
+  const verifyBasicProperties = (pluginInfo, {id, type, version, about, status}) => {
     expect(pluginInfo.id()).toEqual(id);
     expect(pluginInfo.type()).toEqual(type);
     expect(pluginInfo.version()).toEqual(version);
+    expect(pluginInfo.status().state()).toEqual(status.state);
+    expect(pluginInfo.status().messages()).toEqual(status.messages);
     expect(pluginInfo.about().name()).toEqual(about.name);
     expect(pluginInfo.about().version()).toEqual(about.version);
     expect(pluginInfo.about().targetGoVersion()).toEqual(about.target_go_version);
     expect(pluginInfo.about().description()).toEqual(about.description);
-    expect(pluginInfo.about().targetOperatingSystem()).toEqual(about.target_operating_systems);
+    expect(pluginInfo.about().targetOperatingSystems()).toEqual(about.target_operating_systems);
     expect(pluginInfo.about().vendor().name()).toEqual(about.vendor.name);
     expect(pluginInfo.about().vendor().url()).toEqual(about.vendor.url);
   };

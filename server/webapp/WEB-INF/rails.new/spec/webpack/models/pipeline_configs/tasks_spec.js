@@ -643,6 +643,9 @@ describe("Task Model", () => {
           "id": "script-executor",
           "version": "1",
           "type": "task",
+          "status": {
+            "state":"active"
+          },
           "about": {
             "name": "Script Executor",
             "version": "0.3.0",

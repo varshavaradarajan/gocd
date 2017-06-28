@@ -59,7 +59,7 @@ CrudMixins.Index({
   dataPath: '_embedded.plugin_info'
 });
 
-PluginInfos.PluginInfo = function (type, {id, version, about, imageUrl}) {
+PluginInfos.PluginInfo = function (type, {id, version, about, pluginSettings, imageUrl, status, pluginFileLocation, bundledPlugin}) {
   this.constructor.modelType = 'pluginInfo';
   this.parent                = Mixins.GetterSetter();
   Mixins.HasUUID.call(this);
@@ -70,6 +70,20 @@ PluginInfos.PluginInfo = function (type, {id, version, about, imageUrl}) {
   this.version  = Stream(version);
   this.about    = Stream(about);
   this.imageUrl = Stream(imageUrl);
+
+  if (pluginSettings) {
+    this.pluginSettings = Stream(pluginSettings);
+  }
+
+  this.status             = Stream(status);
+  this.pluginFileLocation = Stream(pluginFileLocation);
+  this.bundledPlugin      = Stream(bundledPlugin);
+
+  this.isActive = () => this.status().state() === 'active';
+
+  this.hasErrors = () => this.status().state() === 'invalid';
+
+  this.suportsPluginSettings = () => !!this.pluginSettings;
 };
 
 PluginInfos.PluginInfo.Authentication = function (data) {
@@ -77,10 +91,14 @@ PluginInfos.PluginInfo.Authentication = function (data) {
 };
 
 PluginInfos.PluginInfo.Authentication.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Authentication({
-  id:       data.id,
-  version:  data.version,
-  about:    About.fromJSON(data.about),
-  imageUrl: _.get(data, '_links.image.href')
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  version:            data.version,
+  about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.plugin_settings),
+  imageUrl:           _.get(data, '_links.image.href')
 });
 
 PluginInfos.PluginInfo.ConfigRepo = function (data) {
@@ -88,9 +106,13 @@ PluginInfos.PluginInfo.ConfigRepo = function (data) {
 };
 
 PluginInfos.PluginInfo.ConfigRepo.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ConfigRepo({
-  id:       data.id,
-  version:  data.version,
-  about:    About.fromJSON(data.about),
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  version:            data.version,
+  about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.plugin_settings),
   imageUrl: _.get(data, '_links.image.href')
 });
 
@@ -99,10 +121,14 @@ PluginInfos.PluginInfo.Notification = function (data) {
 };
 
 PluginInfos.PluginInfo.Notification.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Notification({
-  id:       data.id,
-  version:  data.version,
-  about:    About.fromJSON(data.about),
-  imageUrl: _.get(data, '_links.image.href')
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  version:            data.version,
+  about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.plugin_settings),
+  imageUrl:           _.get(data, '_links.image.href')
 });
 
 PluginInfos.PluginInfo.PackageRepository = function (data) {
@@ -114,6 +140,9 @@ PluginInfos.PluginInfo.PackageRepository = function (data) {
 
 PluginInfos.PluginInfo.PackageRepository.fromJSON = (data = {}) => new PluginInfos.PluginInfo.PackageRepository({
   id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
   version:            data.version,
   about:              About.fromJSON(data.about),
   packageSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.package_settings),
@@ -128,11 +157,14 @@ PluginInfos.PluginInfo.Task = function (data) {
 };
 
 PluginInfos.PluginInfo.Task.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Task({
-  id:           data.id,
-  version:      data.version,
-  about:        About.fromJSON(data.about),
-  taskSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.task_settings),
-  imageUrl:     _.get(data, '_links.image.href'),
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  version:            data.version,
+  about:              About.fromJSON(data.about),
+  taskSettings:       PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.task_settings),
+  imageUrl:           _.get(data, '_links.image.href'),
 });
 
 PluginInfos.PluginInfo.SCM = function (data) {
@@ -142,11 +174,14 @@ PluginInfos.PluginInfo.SCM = function (data) {
 };
 
 PluginInfos.PluginInfo.SCM.fromJSON = (data = {}) => new PluginInfos.PluginInfo.SCM({
-  id:          data.id,
-  version:     data.version,
-  about:       About.fromJSON(data.about),
-  scmSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.scm_settings),
-  imageUrl:    _.get(data, '_links.image.href'),
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  version:            data.version,
+  about:              About.fromJSON(data.about),
+  scmSettings:        PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.scm_settings),
+  imageUrl:           _.get(data, '_links.image.href'),
 });
 
 PluginInfos.PluginInfo.Authorization = function (data) {
@@ -155,11 +190,13 @@ PluginInfos.PluginInfo.Authorization = function (data) {
   this.authConfigSettings = Stream(data.authConfigSettings);
   this.roleSettings       = Stream(data.roleSettings);
   this.capabilities       = Stream(data.capabilities);
-
 };
 
 PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.PluginInfo.Authorization({
   id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
   version:            data.version,
   about:              About.fromJSON(data.about),
   authConfigSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.auth_config_settings),
@@ -174,22 +211,44 @@ PluginInfos.PluginInfo.ElasticAgent = function (data) {
 };
 
 PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ElasticAgent({
-  id:              data.id,
-  version:         data.version,
-  about:           About.fromJSON(data.about),
-  profileSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
-  imageUrl:        _.get(data, '_links.image.href'),
+  id:                 data.id,
+  status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+  pluginFileLocation: data.plugin_file_location,
+  bundledPlugin:      data.bundled_plugin,
+  version:            data.version,
+  about:              About.fromJSON(data.about),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
+  profileSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
+  imageUrl:           _.get(data, '_links.image.href'),
 });
+
+PluginInfos.PluginInfo.Bad = function (data) {
+  PluginInfos.PluginInfo.call(this, null, data);
+};
+
+PluginInfos.PluginInfo.Bad.fromJSON = function (data) {
+  return new PluginInfos.PluginInfo.Bad({
+    id:                 data.id,
+    status:             PluginInfos.PluginInfo.Status.fromJSON(data.status),
+    pluginFileLocation: data.plugin_file_location,
+    bundledPlugin:      data.bundled_plugin,
+    version:            data.version,
+    about:              About.fromJSON(data.about),
+  });
+};
+
+PluginInfos.PluginInfo.Status = function ({state, messages}) {
+  this.state    = Stream(state);
+  this.messages = Stream(messages);
+};
+
+PluginInfos.PluginInfo.Status.fromJSON = function (data) {
+  return new PluginInfos.PluginInfo.Status(data);
+};
 
 PluginInfos.PluginInfo.createByType = ({type}) => new PluginInfos.Types[type]({});
 
-PluginInfos.PluginInfo.fromJSON = (data = {}) => {
-  if (PluginInfos.Types[data.type]) {
-    return PluginInfos.Types[data.type].fromJSON(data);
-  } else {
-    throw `Could not find plugin type ${data.type}`;
-  }
-};
+PluginInfos.PluginInfo.fromJSON = (data = {}) => (data.status && data.status.state === 'active') ? PluginInfos.Types[data.type].fromJSON(data) : PluginInfos.PluginInfo.Bad.fromJSON(data);
 
 PluginInfos.Types = {
   'authentication':     PluginInfos.PluginInfo.Authentication,

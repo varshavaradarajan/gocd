@@ -61,6 +61,9 @@ describe("ElasticProfilesWidget", () => {
       "version": "0.5"
     },
     "type":             "elastic-agent",
+    "status": {
+      "state": "active"
+    },
     "extension_info": {
       "profile_settings": {
         "configurations": [
@@ -100,6 +103,9 @@ describe("ElasticProfilesWidget", () => {
       "version": "0.5"
     },
     "type":             "elastic-agent",
+    "status": {
+      "state": "active"
+    },
     "extension_info": {
       "profile_settings": {
         "configurations": [],
