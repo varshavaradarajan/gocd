@@ -97,7 +97,7 @@ PluginInfos.PluginInfo.Authentication.fromJSON = (data = {}) => new PluginInfos.
   bundledPlugin:      data.bundled_plugin,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.plugin_settings),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   imageUrl:           _.get(data, '_links.image.href')
 });
 
@@ -112,7 +112,7 @@ PluginInfos.PluginInfo.ConfigRepo.fromJSON = (data = {}) => new PluginInfos.Plug
   bundledPlugin:      data.bundled_plugin,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.plugin_settings),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   imageUrl: _.get(data, '_links.image.href')
 });
 
@@ -127,7 +127,7 @@ PluginInfos.PluginInfo.Notification.fromJSON = (data = {}) => new PluginInfos.Pl
   bundledPlugin:      data.bundled_plugin,
   version:            data.version,
   about:              About.fromJSON(data.about),
-  pluginSettings:     PluggableInstanceSettings.fromJSON(data.plugin_settings),
+  pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   imageUrl:           _.get(data, '_links.image.href')
 });
 
@@ -201,13 +201,14 @@ PluginInfos.PluginInfo.Authorization.fromJSON = (data = {}) => new PluginInfos.P
   about:              About.fromJSON(data.about),
   authConfigSettings: PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.auth_config_settings),
   roleSettings:       PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.role_settings),
-  capabilities:       Capabilities.fromJSON(data.capabilities),
+  capabilities:       Capabilities.fromJSON(data.extension_info && data.extension_info.capabilities),
   imageUrl:           _.get(data, '_links.image.href'),
 });
 
 PluginInfos.PluginInfo.ElasticAgent = function (data) {
   PluginInfos.PluginInfo.call(this, "elastic-agent", data);
   this.profileSettings = Stream(data.profileSettings);
+  this.capabilities = Stream(data.capabilities)
 };
 
 PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.PluginInfo.ElasticAgent({
@@ -219,6 +220,7 @@ PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.Pl
   about:              About.fromJSON(data.about),
   pluginSettings:     PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.plugin_settings),
   profileSettings:    PluggableInstanceSettings.fromJSON(data.extension_info && data.extension_info.profile_settings),
+  capabilities:       Capabilities.fromJSON(data.extension_info && data.extension_info.capabilities),
   imageUrl:           _.get(data, '_links.image.href'),
 });
 

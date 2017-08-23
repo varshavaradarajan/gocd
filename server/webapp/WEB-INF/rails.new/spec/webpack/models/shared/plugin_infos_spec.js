@@ -66,11 +66,36 @@ describe('PluginInfos', () => {
             "name": "GoCD Contributors",
             "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
           }
+        },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "server_base_url",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "authentication plugin view"
+            }
+          }
         }
       };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['server_base_url']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+
     });
   });
 
@@ -95,6 +120,20 @@ describe('PluginInfos', () => {
           }
         },
         "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "instance_type",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "elastic agent plugin settings view"
+            }
+          },
           "profile_settings": {
             "configurations": [
               {
@@ -136,6 +175,14 @@ describe('PluginInfos', () => {
         secure:   false,
         required: true
       });
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['instance_type']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
     });
   });
 
@@ -158,11 +205,35 @@ describe('PluginInfos', () => {
             "name": "Srinivas Upadhya",
             "url":  "https://github.com/srinivasupadhya/gocd-build-status-notifier"
           }
+        },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "hostname",
+                "metadata": {
+                  "secure": false,
+                  "required": true
+                }
+              }
+            ],
+            "view": {
+              "template": "notification plugin view"
+            }
+          }
         }
       };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['hostname']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
     });
   });
 
@@ -529,6 +600,11 @@ describe('PluginInfos', () => {
             "view":           {
               "template": "<div class=\"row\">\n  <h4>Query user attribute</h4>\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeName].$error.server}\">Attribute name</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeName].$error.server}\" type=\"text\" ng-model=\"AttributeName\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeName].$error.server}\" ng-show=\"GOINPUTNAME[AttributeName].$error.server\">{{GOINPUTNAME[AttributeName].$error.server}}</span>\n  </div>\n\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeValue].$error.server}\">Attribute value</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeValue].$error.server}\" type=\"text\" ng-model=\"AttributeValue\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeValue].$error.server}\" ng-show=\"GOINPUTNAME[AttributeValue].$error.server\">{{GOINPUTNAME[AttributeValue].$error.server}}</span>\n  </div>\n</div>\n\n<div>\n  <h4>Use group membership filter</h4>\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\">Group membership search base</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" type=\"text\" ng-model=\"GroupMembershipSearchBase\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipSearchBase].$error.server\">{{GOINPUTNAME[GroupMembershipSearchBase].$error.server}}</span>\n    </div>\n  </div>\n\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipFilter].$error.server}\">Group membership filter</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipFilter].$error.server}\" type=\"text\" ng-model=\"GroupMembershipFilter\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipFilter].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipFilter].$error.server\">{{GOINPUTNAME[GroupMembershipFilter].$error.server}}</span>\n    </div>\n  </div>\n</div>\n\n\n\n"
             }
+          },
+          "capabilities": {
+            "can_search": true,
+            "supported_auth_type": "Password",
+            "can_authorize": false
           }
         }
       };
@@ -551,6 +627,10 @@ describe('PluginInfos', () => {
         secure:   false,
         required: false
       });
+
+      expect(pluginInfo.capabilities().canSearch()).toEqual(json.extension_info.capabilities.can_search);
+      expect(pluginInfo.capabilities().supportedAuthType()).toEqual(json.extension_info.capabilities.supported_auth_type);
+      expect(pluginInfo.capabilities().canAuthorize()).toEqual(json.extension_info.capabilities.can_authorize);
     });
   });
 
@@ -574,10 +654,35 @@ describe('PluginInfos', () => {
             "url":  "https://github.com/tomzo/gocd-json-config-plugin"
           }
         },
+        "extension_info": {
+          "plugin_settings": {
+            "configurations": [
+              {
+                "key": "pipeline_pattern",
+                "metadata": {
+                  "required": false,
+                  "secure": false
+                }
+              }
+            ],
+            "view": {
+              "template": "config repo plugin view"
+            }
+          }
+        }
       };
 
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(json.extension_info.plugin_settings.view.template);
+      expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
+      expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['pipeline_pattern']);
+      expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: false
+      });
+
     });
   });
 
