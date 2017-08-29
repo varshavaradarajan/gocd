@@ -21,6 +21,8 @@ const _               = require('lodash');
 const Modal           = require('views/shared/new_modal');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const PluginWidget    = require('views/plugins/plugin_widget');
+const PluginSettingModalBody = require('views/plugins/plugin_setting_modal_body');
+const PluginSetting   = require('models/plugins/plugin_setting');
 
 require('jquery-textcomplete');
 
@@ -59,19 +61,19 @@ const PluginsWidget = {
       this.message({});
     };
 
-    this.reloadPage = function () {
-      //ElasticProfiles.all().then((profiles) => {
-      //  ctrl.profiles(profiles);
-      //}, (message) => {
-      //  ctrl.message({type: 'alert', message});
-      //}).always(m.redraw);
-    };
-
-    this.reloadPage();
-
     this.createModal = function (options) {
-      const newProfile   = options.newProfile;
+      const newPluginSetting   = options.newPluginSetting;
       const pluginInfo   = options.pluginInfo;
+      const setPluginSetting = function () {
+        if(vnode.attrs.pluginInfo) {
+          PluginSetting.get(pluginInfo.id()).then((pluginSetting) => {
+            newPluginSetting(pluginSetting);
+          }, (error) => {
+            newPluginSetting(new PluginSetting({pluginId: vnode.attrs.pluginInfo.id()}))
+          });
+        }
+      };
+      setPluginSetting();
       const modalTitle   = options.modalTitle;
       const errorMessage = options.errorMessage;
       const callback     = options.callback || _.noop;
@@ -79,10 +81,9 @@ const PluginsWidget = {
       const modal = new Modal({
         size:    'large',
         title:   modalTitle,
-        //body:    () => (<ElasticProfileModalBody profile={newProfile}
-        //                                         pluginInfos={vnode.attrs.pluginInfos}
-        //                                         pluginInfo={pluginInfo}
-        //                                         errorMessage={errorMessage}/>),
+        body:    () => (<PluginSettingModalBody newPluginSetting={newPluginSetting}
+                                                 pluginInfo={pluginInfo}
+                                                 errorMessage={errorMessage}/>),
         onclose: () => modal.destroy(),
         buttons: [
           {
@@ -95,28 +96,33 @@ const PluginsWidget = {
       return modal;
     };
 
-    this.edit = function (profile) {
-      const newProfile   = Stream();
-      const pluginInfo   = Stream(vnode.attrs.pluginInfos().findById(profile.pluginId()));
+    this.edit = function (pluginInfo) {
+      const newPluginSetting   = Stream(new PluginSetting({pluginId: pluginInfo.id()}));
+
       const errorMessage = Stream();
       ctrl.clearMessage();
 
       const modal = this.createModal({
-        newProfile,
+        newPluginSetting,
         pluginInfo,
-        modalTitle: `Add a new profile`,
+        modalTitle: `Edit plugin Settings`,
         errorMessage,
         callback:   () => {
-          newProfile().update().then(showSuccess(modal, ctrl, `The profile ${newProfile().id()} was updated successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
+          if (newPluginSetting().etag()) {
+            newPluginSetting().update().then(showSuccess(modal, ctrl, `The plugin settings for ${newPluginSetting().pluginId()} was updated successfully.`), showErrors(modal, ctrl, newPluginSetting));
+          }
+          else {
+            newPluginSetting().create().then(showSuccess(modal, ctrl, `The plugin settings for ${newPluginSetting().pluginId()} was created successfully.`), showErrors(modal, ctrl, newPluginSetting));
+          }
         }
       });
 
-      const onFulfilled = function (profileFromAjax) {
-        newProfile(profileFromAjax);
+      const onFulfilled = function (pluginSettingsFromRequest) {
+        newPluginSetting(pluginSettingsFromRequest);
         errorMessage(null);
       };
       modal.render();
-      //ElasticProfiles.Profile.get(profile.id()).then(onFulfilled, errorMessage).always(m.redraw);
+      PluginSetting.get(pluginInfo.id()).then(onFulfilled, errorMessage).always(m.redraw);
     };
   },
 
@@ -166,6 +172,8 @@ const PluginsWidget = {
         <div class="plugins">
           {noPluginsMessage}
           {errorMessage}
+
+
           <f.row>
 
             {vnode.attrs.pluginInfos().sortByPluginInfos((pi) => pi.id()).map((pluginInfo) => {

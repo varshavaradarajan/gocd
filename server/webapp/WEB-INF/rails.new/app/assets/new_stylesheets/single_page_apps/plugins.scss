@@ -49,7 +49,7 @@ $elastic-profile-icon-hover-color: #000;
 }
 
 .edit-plugin {
-  @include icon-before($type: pencil-square-o, $color: $elastic-profile-icon-color);
+  @include icon-before($type: gear, $color: $elastic-profile-icon-color);
   &:not(.disabled) {
     &:hover {
       &:before {

@@ -56,7 +56,6 @@ const PluginWidget = {
     if (!pluginInfo.isActive() || !pluginInfo.suportsPluginSettings()) {
       actionIcons = (
         <div class="plugin-actions">
-          <f.link class='edit-plugin disabled' title="This plugin does not support editing configuration"/>
         </div>
       );
     }
