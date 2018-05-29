@@ -1,0 +1,15 @@
+<div class="fieldset">
+  <div id="<%= scope[:plugged_material_angular_controller_element_id] %>" name="<%= scope[:plugged_material_angular_controller_element_id] %>" class="plugged_material">
+    <div class="form_item">
+
+      <div class="plugged_material_template required" id="plugin_view_template">
+
+      </div>
+
+      <span id="<%= scope[:plugged_material_data_element_id] %>" class="plugged_material_data" style="display: none">
+
+                        </span>
+    </div>
+    <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+  </div>
+</div>

@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.notification.NotificationMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMaterialMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -119,6 +120,15 @@ public class DefaultPluginInfoFinder {
         } else {
             throw new InvalidPluginTypeException();
         }
+    }
+
+    public Map<String, String> artifactPluginToViewTemplate() {
+        HashMap<String, String> pluginIdToViewTemplate = new HashMap<>();
+        for (CombinedPluginInfo artifact : allPluginInfos("artifact")) {
+            String template = ((ArtifactPluginInfo) artifact.extensionFor(ARTIFACT_EXTENSION)).getArtifactConfigSettings().getView().getTemplate();
+            pluginIdToViewTemplate.put(artifact.getDescriptor().id(), template.replaceAll("'", "\\'"));
+        }
+        return pluginIdToViewTemplate;
     }
 
     private Function<PluginInfo, String> pluginID() {

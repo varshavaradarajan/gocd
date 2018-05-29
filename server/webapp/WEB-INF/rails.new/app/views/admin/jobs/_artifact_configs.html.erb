@@ -20,8 +20,55 @@
       <%= render :partial => 'builtin_artifact_form', :locals => {:scope => {:var_form => var_form}} %>
       <% end %>
     </textarea>
+    <textarea id="artifact_template_external" class="template">
+      <%= render :partial => 'external_artifact_table_headers' %>
+      <%= scope[:form].fields_for :artifactConfigs, :index => "" do |var_form| %>
+      <td class="name_value_cell">
+        <label>External Artifact</label>
+        <%= var_form.hidden_field "artifactTypeValue", :id => nil, :value => 'External Artifact' -%>
+      </td>
+      <td>
+        <%= var_form.text_field "id", :class => "form_input artifact_source", :id => nil -%>
+      </td>
+      <td>
+        <%= var_form.text_field "storeId", :class => "form_input artifact_source", :id => nil -%>
+      </td>
+      <td>
+        <div id="plugin_container">
+          <div id="plugin_input_if_required">
+          <%= var_form.hidden_field "pluginId", :id => 'artifact_plugin_id' -%>
+          </div>
+          <div id="plugin_form">
+            <% dom_id_for_publish_view = random_dom_id %>
+            <% form_name_provider_obj = form_name_provider(var_form) %>
+            <% plugged_artifact_angular_controller_element_id = form_name_provider_obj.css_id_for("angular_" + dom_id_for_publish_view) %>
+            <% plugged_artifact_data_element_id = form_name_provider_obj.css_id_for("data_" + dom_id_for_publish_view) %>
+            <div class="form_content">
+              <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+              <div id="material">
+                <div class="fieldset">
+                  <div id="<%= plugged_artifact_angular_controller_element_id %>" name="<%= plugged_artifact_angular_controller_element_id %>" class="plugged_material">
+                    <div class="form_item">
 
-    <div class="artifact">
+                      <div class="plugged_material_template required" id="plugin_view_template">
+
+                      </div>
+
+                      <span id="<%= plugged_artifact_data_element_id %>" class="plugged_material_data" style="display: none">
+                      </span>
+                    </div>
+                    <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <%= render :partial => 'shared/convert_tool_tips.html' %>
+          </div>
+        </div>
+      </td>
+    </textarea>
+
+        <div class="artifact">
       <% scope[:built_in_collection].each do |variable| -%>
         <%= scope[:form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_CONFIGS, variable, :index => "" do |var_form| %>
           <table class="artifact">
@@ -53,6 +100,7 @@
       <select class="small" id="select_artifact_type">
         <option value="Build Artifact">Build Artifact</option>
         <option value="Test Artifact">Test Artifact</option>
+        <option value="External Artifact">External Artifact</option>
       </select>
     </td>
     <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop", :id => "add_artifact"}) %>
@@ -74,7 +122,30 @@
         case 'Test Artifact':
           addBuiltInFormRowFor('#artifact_template_test');
           break;
+        case 'External Artifact':
+          addBuiltInFormRowFor('#artifact_template_external');
+          jQuery("input[name='job[artifactConfigs][][storeId]']").on('change focusout' ,function (event) {
+            var selectedInput = event.currentTarget || event.target;
+            setPluginIdField(selectedInput);
+            debugger;
+            initializeAngular();
+          });
+          break;
       }
+    }
+
+    function initializeAngular() {
+      var form_name_prefix = "<%= form_name_provider_obj.form_name_prefix %>";
+      var plugged_artifact_angular_controller_element_id = "<%= plugged_artifact_angular_controller_element_id %>";
+      var plugged_artifact_data_element_id = "<%= plugged_artifact_data_element_id %>";
+      new TaskPluginView().initialize(plugged_artifact_angular_controller_element_id, plugged_artifact_data_element_id, form_name_prefix);
+
+      new TaskPluginView().bootstrapAngular();
+    }
+
+    function setPluginIdField(selectedInput) {
+      var store_id_to_plugin_id = JSON.parse('<%== scope[:store_id_to_plugin_id].to_json%>');
+      jQuery('#artifact_plugin_id').val(store_id_to_plugin_id[selectedInput.value]);
     }
 
     function addBuiltInFormRowFor(selector) {
@@ -93,3 +164,4 @@
     }
   });
 </script>
+<% end %>

@@ -18,6 +18,22 @@
       </admins>
     </security>
   </server>
+  <artifactStores>
+    <artifactStore id="hub" pluginId="cd.go.artifact.docker.registry">
+      <property>
+        <key>RegistryURL</key>
+        <value>https://index.docker.io/v1/</value>
+      </property>
+      <property>
+        <key>Username</key>
+        <value>varshavs</value>
+      </property>
+      <property>
+        <key>Password</key>
+        <encryptedValue>pVyuW5ny9I6YT4Ou+KLZhQ==</encryptedValue>
+      </property>
+    </artifactStore>
+  </artifactStores>
   <pipelines group="first">
     <authorization>
       <view>
@@ -29,7 +45,7 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <git url="test-repo" />
+        <git url="/Users/varshavs/git_test/test_custom_tabs" />
       </materials>
       <stage name="up42_stage">
         <jobs>
@@ -37,9 +53,19 @@
             <tasks>
               <exec command="ls" />
             </tasks>
+            <tabs>
+              <tab name="custom" path="index/index.html" />
+            </tabs>
+            <artifacts>
+              <artifact type="build" src="index.html" dest="index" />
+            </artifacts>
           </job>
         </jobs>
       </stage>
     </pipeline>
   </pipelines>
+  <agents>
+    <agent hostname="INvarshavs.local" ipaddress="10.132.21.112" uuid="fa6f2019-045b-4da6-a26c-097903cf229f" />
+    <agent hostname="INvarshavs.local" ipaddress="127.0.0.1" uuid="1896e6be-c9a6-41ec-adfb-675b3b840f00" />
+  </agents>
 </cruise>

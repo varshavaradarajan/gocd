@@ -48,6 +48,9 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     @ConfigReferenceElement(referenceAttribute = "storeId", referenceCollection = "artifactStores")
     private ArtifactStore artifactStore;
 
+    @IgnoreTraversal
+    private String pluginId; //this needs to be set for the rails views
+
     public PluggableArtifactConfig() {
     }
 
@@ -181,6 +184,21 @@ public class PluggableArtifactConfig implements ArtifactConfig {
 
     public  void setArtifactStore(ArtifactStore artifactStore) {
         this.artifactStore = artifactStore;
+    }
+
+    public String getPluginType() {
+        if (artifactStore != null) {
+            return "external_artifact_" + this.artifactStore.getPluginId().replaceAll("[^a-zA-Z0-9_]", "_");
+        }
+        return "external_artifact";
+    }
+
+    public String getPluginId() {
+        return pluginId;
+    }
+
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
     }
 
     @Override

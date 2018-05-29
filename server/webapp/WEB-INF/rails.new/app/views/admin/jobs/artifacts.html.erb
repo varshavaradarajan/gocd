@@ -11,7 +11,7 @@
     <%= register_defaultable_list("job>artifactConfigs") %>
 
     <div class="fieldset">
-        <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :built_in_collection => @job.artifactConfigs().getBuiltInArtifactConfigs()}} %>
+        <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :built_in_collection => @job.artifactConfigs().getBuiltInArtifactConfigs(), :external_collection => @job.artifactConfigs().getPluggableArtifactConfigs(), :store_id_to_plugin_id => @store_id_to_plugin_id, :artifact_plugin_to_view => @artifact_plugin_to_view, :artifact_meta_data_store => @artifact_meta_data_store }} %>
     </div>
 
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

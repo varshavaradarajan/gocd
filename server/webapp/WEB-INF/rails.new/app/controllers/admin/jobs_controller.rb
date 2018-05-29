@@ -30,12 +30,18 @@ module Admin
 
     def new
       assert_load :task_view_models, task_view_service.getTaskViewModels()
+      assert_load :store_id_to_plugin_id, artifact_store_service.artifactStoreIdsToPluginIds().to_hash
+      assert_load :artifact_plugin_to_view, default_plugin_info_finder.artifactPluginToViewTemplate().to_hash
+      assert_load :artifact_meta_data_store, artifact_meta_data_store
       load_resources_and_elastic_profile_ids_for_autocomplete
       assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
       render layout: false
     end
 
     def edit
+      assert_load :artifact_plugin_to_view, default_plugin_info_finder.artifactPluginToViewTemplate().to_hash
+      assert_load :store_id_to_plugin_id, artifact_store_service.artifactStoreIdsToPluginIds().to_hash
+      assert_load :artifact_meta_data_store, artifact_meta_data_store
       load_resources_and_elastic_profile_ids_for_autocomplete
       assert_load :job, @jobs.getJob(CaseInsensitiveString.new(params[:job_name]))
       render with_layout(:action => params[:current_tab]) unless @error_rendered
@@ -106,6 +112,10 @@ module Admin
     end
 
     private
+
+    def artifact_meta_data_store
+      ArtifactMetadataStore.instance()
+    end
 
     def load_jobs
       assert_load :jobs, @stage.getJobs()
