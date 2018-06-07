@@ -19,23 +19,31 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import org.apache.commons.lang3.StringUtils;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
-public class FetchPluggableArtifactTask extends AbstractFetchTask {
-    public static final String FETCH_EXTERNAL_ARTIFACT = "Fetch External Artifact";
+public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
+    public static final String FETCH_PLUGGABLE_ARTIFACT_DISPLAY_NAME = "Fetch Pluggable Artifact";
+    public static final String ARTIFACT_ID = "artifactId";
+
     @ConfigAttribute(value = "artifactId", optional = false)
     private String artifactId;
     @ConfigSubtag
@@ -76,6 +84,19 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public Map<String, Map<String, String>> getConfigAsMap() {
+        Map<String, Map<String, String>> configMap = new HashMap<>();
+        for (ConfigurationProperty property : getConfiguration()) {
+            Map<String, String> mapValue = new HashMap<>();
+            mapValue.put("value", property.getValue());
+            if (!property.errors().isEmpty()) {
+                mapValue.put("errors", StringUtils.join(property.errors().getAll(), ", "));
+            }
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
     }
 
     @Override
@@ -162,23 +183,48 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     @Override
     protected void setFetchTaskAttributes(Map attributeMap) {
-        // since encryptSecureProperties will be called after deserialization, this need not be updated.
+        this.artifactId = (String) attributeMap.get(ARTIFACT_ID);
+        if (StringUtils.isBlank(this.artifactId)) {
+            //TODO: show error with 422
+            return;
+        }
+        String pluginId = (String) attributeMap.get("pluginId");
+        if (StringUtils.isBlank(pluginId)) {
+            //TODO: show error with 422
+            return;
+        }
 
-        configuration.setConfigAttributes(attributeMap, new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                return false;
+        ArtifactPluginInfo artifactPluginInfo = getArtifactPluginInfo(pluginId);
+        if (artifactPluginInfo == null) {
+            //TODO: show error with 422
+            return;
+        }
+
+        for (PluginConfiguration pluginConfiguration : artifactPluginInfo.getFetchArtifactSettings().getConfigurations()) {
+            String key = pluginConfiguration.getKey();
+            if (attributeMap.containsKey(key)) {
+                if (configuration.getProperty(key) == null) {
+                    configuration.addNewConfiguration(pluginConfiguration.getKey(), pluginConfiguration.isSecure());
+                }
+                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributeMap.get(key)));
+                configuration.getProperty(key).handleSecureValueConfiguration(pluginConfiguration.isSecure());
             }
-        });
+        }
     }
 
-    public boolean isSecure(String key, PluggableInstanceSettings fetchArtifactSettings) {
-        return fetchArtifactSettings.getConfiguration(key) != null && fetchArtifactSettings.getConfiguration(key).isSecure();
+    @Override
+    public boolean isSecure(String key) {
+        return false;
+    }
+
+    @Override
+    public String getTaskType() {
+        return "fetch_pluggable_artifact";
     }
 
     @Override
     public String getTypeForDisplay() {
-        return FETCH_EXTERNAL_ARTIFACT;
+        return FETCH_PLUGGABLE_ARTIFACT_DISPLAY_NAME;
     }
 
     @Override
@@ -194,6 +240,11 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     @Override
     public String describe() {
         return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getArtifactId(), getPipelineName(), getStage(), getJob());
+    }
+
+    private ArtifactPluginInfo getArtifactPluginInfo(String pluginId) {
+        ArtifactMetadataStore artifactMetadataStore = ArtifactMetadataStore.instance();
+        return artifactMetadataStore.getPluginInfo(pluginId);
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurationProperties) {
