@@ -52,19 +52,30 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     public FetchPluggableArtifactTask() {
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, ConfigurationProperty... configurations) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName,
+                                      CaseInsensitiveString stage,
+                                      CaseInsensitiveString job,
+                                      String artifactId,
+                                      ConfigurationProperty... configurations) {
         super(pipelineName, stage, job);
         this.artifactId = artifactId;
         configuration.addAll(Arrays.asList(configurations));
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, ConfigurationProperty... configurations) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString stage,
+                                      CaseInsensitiveString job,
+                                      String artifactId,
+                                      ConfigurationProperty... configurations) {
         super(stage, job);
         this.artifactId = artifactId;
         configuration.addAll(Arrays.asList(configurations));
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, Configuration configuration) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName,
+                                      CaseInsensitiveString stage,
+                                      CaseInsensitiveString job,
+                                      String artifactId,
+                                      Configuration configuration) {
         super(pipelineName, stage, job);
         this.artifactId = artifactId;
         this.configuration = configuration;
@@ -185,18 +196,15 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
     protected void setFetchTaskAttributes(Map attributeMap) {
         this.artifactId = (String) attributeMap.get(ARTIFACT_ID);
         if (StringUtils.isBlank(this.artifactId)) {
-            //TODO: show error with 422
             return;
         }
         String pluginId = (String) attributeMap.get("pluginId");
         if (StringUtils.isBlank(pluginId)) {
-            //TODO: show error with 422
             return;
         }
 
         ArtifactPluginInfo artifactPluginInfo = getArtifactPluginInfo(pluginId);
         if (artifactPluginInfo == null) {
-            //TODO: show error with 422
             return;
         }
 
