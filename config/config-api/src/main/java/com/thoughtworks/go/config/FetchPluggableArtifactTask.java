@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
@@ -41,8 +40,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
 public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
-    public static final String FETCH_PLUGGABLE_ARTIFACT_DISPLAY_NAME = "Fetch Pluggable Artifact";
+    public static final String FETCH_PLUGGABLE_ARTIFACT_DISPLAY_NAME = "Fetch External Artifact";
     public static final String ARTIFACT_ID = "artifactId";
+    public static final String CONFIGURATION = "configuration";
 
     @ConfigAttribute(value = "artifactId", optional = false)
     private String artifactId;
@@ -198,25 +198,19 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         if (StringUtils.isBlank(this.artifactId)) {
             return;
         }
+
         String pluginId = (String) attributeMap.get("pluginId");
         if (StringUtils.isBlank(pluginId)) {
+            errors.add("pluginId", "Must select plugin id.");
+        }
+
+        final Map<String, String> configurations = (Map<String, String>) attributeMap.get(CONFIGURATION);
+        if (configurations == null) {
             return;
         }
 
-        ArtifactPluginInfo artifactPluginInfo = getArtifactPluginInfo(pluginId);
-        if (artifactPluginInfo == null) {
-            return;
-        }
-
-        for (PluginConfiguration pluginConfiguration : artifactPluginInfo.getFetchArtifactSettings().getConfigurations()) {
-            String key = pluginConfiguration.getKey();
-            if (attributeMap.containsKey(key)) {
-                if (configuration.getProperty(key) == null) {
-                    configuration.addNewConfiguration(pluginConfiguration.getKey(), pluginConfiguration.isSecure());
-                }
-                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributeMap.get(key)));
-                configuration.getProperty(key).handleSecureValueConfiguration(pluginConfiguration.isSecure());
-            }
+        for (Map.Entry<String, String> configuration : configurations.entrySet()) {
+            this.configuration.addNewConfigurationWithValue(configuration.getKey(), configuration.getValue(), false);
         }
     }
 
