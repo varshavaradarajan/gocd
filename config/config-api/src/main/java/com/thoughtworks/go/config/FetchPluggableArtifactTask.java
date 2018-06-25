@@ -183,11 +183,6 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             return;
         }
 
-        String pluginId = (String) attributeMap.get("pluginId");
-        if (StringUtils.isBlank(pluginId)) {
-            errors.add("pluginId", "Must select plugin id.");
-        }
-
         final Map<String, String> configurations = (Map<String, String>) attributeMap.get(CONFIGURATION);
         if (configurations == null) {
             return;
@@ -237,10 +232,5 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             configMap.put(property.getConfigKeyName(), mapValue);
         }
         return configMap;
-    }
-
-    @Override
-    public String getTaskType() {
-        return "fetch_pluggable_artifact";
     }
 }
