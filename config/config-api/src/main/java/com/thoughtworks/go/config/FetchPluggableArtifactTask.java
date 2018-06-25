@@ -19,30 +19,25 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import org.apache.commons.lang3.StringUtils;
-import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
-import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
-public class FetchPluggableArtifactTask extends AbstractFetchTask implements SecureKeyInfoProvider {
-    public static final String FETCH_PLUGGABLE_ARTIFACT_DISPLAY_NAME = "Fetch External Artifact";
+public class FetchPluggableArtifactTask extends AbstractFetchTask {
     public static final String ARTIFACT_ID = "artifactId";
     public static final String CONFIGURATION = "configuration";
+    public static final String FETCH_EXTERNAL_ARTIFACT = "Fetch External Artifact";
 
     @ConfigAttribute(value = "artifactId", optional = false)
     private String artifactId;
@@ -97,19 +92,6 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         return configuration;
     }
 
-    public Map<String, Map<String, String>> getConfigAsMap() {
-        Map<String, Map<String, String>> configMap = new HashMap<>();
-        for (ConfigurationProperty property : getConfiguration()) {
-            Map<String, String> mapValue = new HashMap<>();
-            mapValue.put("value", property.getValue());
-            if (!property.errors().isEmpty()) {
-                mapValue.put("errors", StringUtils.join(property.errors().getAll(), ", "));
-            }
-            configMap.put(property.getConfigKeyName(), mapValue);
-        }
-        return configMap;
-    }
-
     @Override
     protected void validateAttributes(ValidationContext validationContext) {
         if (StringUtils.isBlank(artifactId)) {
@@ -131,7 +113,9 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         configuration.validateUniqueness("Fetch pluggable artifact");
     }
 
-    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PipelineConfig preprocessedPipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
+    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig,
+                                        PipelineConfig preprocessedPipelineConfig,
+                                        FetchPluggableArtifactTask preprocessedTask) {
         if (isNotBlank(artifactId)) {
             PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, preprocessedPipelineConfig, preprocessedTask, true, preprocessedPipelineConfig.name());
             encryptSecurePluginConfiguration(preprocessedCruiseConfig, externalArtifact);
@@ -214,19 +198,13 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         }
     }
 
-    @Override
-    public boolean isSecure(String key) {
-        return false;
-    }
-
-    @Override
-    public String getTaskType() {
-        return "fetch_pluggable_artifact";
+    public boolean isSecure(String key, PluggableInstanceSettings fetchArtifactSettings) {
+        return fetchArtifactSettings.getConfiguration(key) != null && fetchArtifactSettings.getConfiguration(key).isSecure();
     }
 
     @Override
     public String getTypeForDisplay() {
-        return FETCH_PLUGGABLE_ARTIFACT_DISPLAY_NAME;
+        return FETCH_EXTERNAL_ARTIFACT;
     }
 
     @Override
@@ -244,12 +222,25 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask implements Sec
         return String.format("fetch pluggable artifact using [%s] from [%s/%s/%s]", getArtifactId(), getPipelineName(), getStage(), getJob());
     }
 
-    private ArtifactPluginInfo getArtifactPluginInfo(String pluginId) {
-        ArtifactMetadataStore artifactMetadataStore = ArtifactMetadataStore.instance();
-        return artifactMetadataStore.getPluginInfo(pluginId);
-    }
-
     public void addConfigurations(List<ConfigurationProperty> configurationProperties) {
         this.getConfiguration().addAll(configurationProperties);
+    }
+
+    public Map<String, Map<String, String>> getConfigAsMap() {
+        Map<String, Map<String, String>> configMap = new HashMap<>();
+        for (ConfigurationProperty property : getConfiguration()) {
+            Map<String, String> mapValue = new HashMap<>();
+            mapValue.put("value", property.getValue());
+            if (!property.errors().isEmpty()) {
+                mapValue.put("errors", StringUtils.join(property.errors().getAll(), ", "));
+            }
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
+    }
+
+    @Override
+    public String getTaskType() {
+        return "fetch_pluggable_artifact";
     }
 }
