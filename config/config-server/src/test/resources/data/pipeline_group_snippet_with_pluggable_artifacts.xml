@@ -103,7 +103,7 @@
             <jobs>
                 <job name="defaultJob">
                     <tasks>
-                        <fetchartifact origin="external" artifactId="#{ANCESTOR_ARTIFACT_ID}"
+                        <fetchartifact artifactOrigin="external" artifactId="#{ANCESTOR_ARTIFACT_ID}"
                                        pipeline="#{ANCESTOR_PIPELINE_NAME}" stage="#{STAGE_NAME}" job="#{JOB_NAME}">
                             <configuration>
                                 <property>
