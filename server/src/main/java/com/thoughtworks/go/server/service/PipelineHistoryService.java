@@ -312,20 +312,6 @@ public class PipelineHistoryService {
         }
     }
 
-    private void populatePipelineState(PipelineInstanceModel instance, Username username) {
-        populatePlaceHolderStages(instance);
-        populateCanRunStatus(username, instance);
-        populateStageOperatePermission(instance, username);
-        populateLockStatus(instance.getName(), username, instance);
-
-        long id = pipelineTimeline.pipelineBefore(instance.getId());
-        if (id != -1) {
-            PipelineInstanceModel prevPipeline = pipelineDao.loadHistory(id);
-            instance.setPreviousPipelineLabel(prevPipeline.getLabel());
-            instance.setPreviousPipelineCounter(prevPipeline.getCounter());
-        }
-    }
-
     public PipelineInstanceModel findPipelineInstance(String pipelineName, int pipelineCounter, Username username, OperationResult result) {
         return decoratePIM(pipelineName, pipelineCounter, username, result, pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter));
     }

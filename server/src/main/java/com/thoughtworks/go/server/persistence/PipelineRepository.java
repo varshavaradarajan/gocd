@@ -19,15 +19,13 @@ package com.thoughtworks.go.server.persistence;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -69,7 +67,7 @@ public class PipelineRepository extends HibernateDaoSupport {
     }
 
     @SuppressWarnings({"unchecked"})
-    public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
+    public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback, final String pipelineName) {
         getHibernateTemplate().execute(new HibernateCallback() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
@@ -84,7 +82,7 @@ public class PipelineRepository extends HibernateDaoSupport {
 
             public Object doInHibernate(Session session) throws HibernateException {
                 LOGGER.info("Start updating pipeline timeline");
-                List<Object[]> matches = retrieveTimeline(session, pipelineTimeline);
+                List<Object[]> matches = retrieveTimeline(session, pipelineTimeline, pipelineName);
                 List<PipelineTimelineEntry> newPipelines = populateFrom(matches);
                 addEntriesToPipelineTimeline(newPipelines, pipelineTimeline, tempEntriesForRollback);
 
@@ -101,21 +99,19 @@ public class PipelineRepository extends HibernateDaoSupport {
                 }
             }
 
-            private List<Object[]> loadTimeline(SQLQuery query) {
+            private List<Object[]> loadTimeline(SQLQuery query, String pipelineName) {
                 long startedAt = System.currentTimeMillis();
                 List<Object[]> matches = (List<Object[]>) query.list();
                 long duration = System.currentTimeMillis() - startedAt;
-                if (duration > 1000) {
-                    LOGGER.warn("updating in memory pipeline-timeline took: {} ms", duration);
-                }
+                LOGGER.info("updating in memory pipeline-timeline for {} took: {} ms", pipelineName, duration);
                 return matches;
             }
 
-            private List<Object[]> retrieveTimeline(Session session, PipelineTimeline pipelineTimeline) {
-                SQLQuery query = session.createSQLQuery(queryExtensions.retrievePipelineTimeline());
-                query.setLong(0, pipelineTimeline.maximumId());
+            private List<Object[]> retrieveTimeline(Session session, PipelineTimeline pipelineTimeline, String pipelineName) {
+                SQLQuery query = session.createSQLQuery(queryExtensions.retrievePipelineTimelineFor(pipelineName));
+                query.setLong(0, pipelineTimeline.getMaximumIdFor(pipelineName));
 
-                List<Object[]> matches = loadTimeline(query);
+                List<Object[]> matches = loadTimeline(query, pipelineName);
                 sortTimeLineByPidAndPmrId(matches);
                 return matches;
             }

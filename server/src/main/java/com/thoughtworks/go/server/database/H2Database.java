@@ -255,6 +255,19 @@ public class H2Database implements Database {
                             + "AND p.id > ?";
                 }
             }
+
+            @Override
+            public String retrievePipelineTimelineFor(String pipelineName) {
+                return "SELECT CAST(p.name AS VARCHAR), p.id AS p_id, p.counter, m.modifiedtime, "
+                        + " (SELECT CAST(materials.fingerprint AS VARCHAR) FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
+                        + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
+                        + "WHERE p.id = pmr.pipelineid "
+                        + "AND pmr.torevisionid = m.id "
+                        + "AND p.id > ?"
+                        + "AND p.name = "+ StringUtils.quoteStringSQL(pipelineName) ;
+            }
+
+
         };
     }
 }

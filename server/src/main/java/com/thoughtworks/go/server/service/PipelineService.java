@@ -98,7 +98,7 @@ public class PipelineService implements UpstreamPipelineResolver {
                     stageService.save(pipelineWithId, stage);
                 }
 
-                pipelineTimeline.update();
+                pipelineTimeline.update(pipeline.getName());
                 return pipelineWithId;
             });
         }
