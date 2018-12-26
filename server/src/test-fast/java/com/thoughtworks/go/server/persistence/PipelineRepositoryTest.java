@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -62,6 +63,7 @@ public class PipelineRepositoryTest {
     private TransactionTemplate transactionTemplate;
     private Session session;
     private SQLQuery sqlQuery;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setup() {
@@ -70,6 +72,7 @@ public class PipelineRepositoryTest {
         sessionFactory = mock(SessionFactory.class);
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);
+        systemEnvironment = mock(SystemEnvironment.class);
         databaseStrategy = mock(DatabaseStrategy.class);
         when(databaseStrategy.getQueryExtensions()).thenReturn(mock(QueryExtensions.class));
         pipelineRepository = new PipelineRepository(sessionFactory, goCache, databaseStrategy);
@@ -133,7 +136,7 @@ public class PipelineRepositoryTest {
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
         ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
-        PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
 
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
 
@@ -153,7 +156,7 @@ public class PipelineRepositoryTest {
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
         ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
-        PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
 
         try {
             pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
@@ -173,7 +176,7 @@ public class PipelineRepositoryTest {
 
         when(sqlQuery.executeUpdate()).thenThrow(new RuntimeException("Failure during update natural order in db"));
         ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
-        PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
 
         try {
             pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);

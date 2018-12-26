@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.helper.PipelineMaterialModificationMother;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,11 +64,13 @@ public class PipelineTimelineTest {
     private TransactionSynchronization transactionSynchronization;
     private PipelineTimelineEntry[] repositoryEntries;
     private int txnStatus;
+    private SystemEnvironment systemEnvironment;
 
 
     @Before public void setUp() throws Exception {
         now = new DateTime();
         pipelineRepository = mock(PipelineRepository.class);
+        systemEnvironment = mock(SystemEnvironment.class);
         materials = Arrays.asList("first", "second", "third", "fourth");
         first = PipelineMaterialModificationMother.modification(1, materials, Arrays.asList(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
         second = PipelineMaterialModificationMother.modification(2, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
@@ -80,7 +83,7 @@ public class PipelineTimelineTest {
 
     @Test
     public void shouldReturnTheNextAndPreviousOfAGivenPipeline() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(first);
         mods.add(third);
         mods.add(second);
@@ -101,7 +104,7 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldPopulateTheBeforeAndAfterNodesForAGivenPMMDuringAddition() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(first);
         mods.add(fourth);
         mods.add(third);
@@ -115,7 +118,7 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldReturnThePipelineBeforeAGivenPipelineId() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(first);
         mods.add(fourth);
         mods.add(third);
@@ -128,7 +131,7 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldReturnThePipelineAfterAGivenPipelineId() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(first);
         mods.add(fourth);
         mods.add(third);
@@ -141,7 +144,7 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldBeAbleToFindThePreviousPipelineForAGivenPipeline() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(first);
         mods.add(fourth);
         assertThat(mods.naturalOrderBefore(fourth), is(first));
@@ -163,7 +166,7 @@ public class PipelineTimelineTest {
         PipelineTimelineEntry anotherPipeline2 = PipelineMaterialModificationMother.modification("another", 5, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
         PipelineTimelineEntry anotherPipeline3 = PipelineMaterialModificationMother.modification("another", 6, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
 
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
 
         mods.add(first);
         mods.add(fourth);
@@ -194,7 +197,7 @@ public class PipelineTimelineTest {
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         final List<PipelineTimelineEntry>[] entries = new List[1];
         entries[0] = new ArrayList<>();
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment, new TimelineUpdateListener() {
             public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
                 assertThat(timeline.contains(newlyAddedEntry), is(true));
                 assertThat(timeline.containsAll(entries[0]), is(true));
@@ -213,7 +216,7 @@ public class PipelineTimelineTest {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         TimelineUpdateListener anotherListener = mock(TimelineUpdateListener.class);
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager,systemEnvironment, new TimelineUpdateListener() {
             public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
                 throw new RuntimeException();
             }
@@ -228,7 +231,7 @@ public class PipelineTimelineTest {
     }
 
     @Test public void updateOnInitShouldBeDoneOutsideTransaction() throws Exception {
-        PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         PipelineTimelineEntry[] entries = {first, second};
         stubPipelineRepository(timeline, true, entries);
 
@@ -245,7 +248,7 @@ public class PipelineTimelineTest {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
 
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         PipelineTimelineEntry[] entries = {first, second};
         stubPipelineRepository(timeline, true, entries);
 
@@ -259,7 +262,7 @@ public class PipelineTimelineTest {
     @Test public void updateShouldRemoveTheTimelinesReturnedOnRollback() throws Exception {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_ROLLED_BACK, true);
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         PipelineTimelineEntry[] entries = {first, second};
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
 
@@ -275,7 +278,7 @@ public class PipelineTimelineTest {
 
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
 
         stubPipelineRepository(timeline, true, first, second);
         timeline.update();
@@ -337,7 +340,7 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldReturnNullForPipelineBeforeAndAfterIfPipelineDoesNotExist() throws Exception {
-        PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         timeline.add(first);
         assertThat(timeline.runBefore(2, new CaseInsensitiveString("not-present")), is(nullValue()));
         assertThat(timeline.runAfter(2, new CaseInsensitiveString("not-present")), is(nullValue()));
@@ -345,7 +348,7 @@ public class PipelineTimelineTest {
 
     @Test
     public void shouldCreateANaturalOrderingHalfWayBetweenEachPipeline() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(first);
         assertThat(first.naturalOrder(), is(1.0));
 
@@ -363,7 +366,7 @@ public class PipelineTimelineTest {
 
     @Test
     public void shouldCreateANaturalOrderingHalfWayBetweenEachPipelineWhenInsertedInReverseOrder() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(fourth);
         assertThat(fourth.naturalOrder(), is(1.0));
 
@@ -380,7 +383,7 @@ public class PipelineTimelineTest {
 
     @Test
     public void shouldNotAllowResetingOfNaturalOrder() {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
+        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, systemEnvironment);
         mods.add(fourth);
         mods.add(first);
         try {

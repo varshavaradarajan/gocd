@@ -35,6 +35,7 @@ import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,17 +55,19 @@ public class PipelineTimeline {
     private final PipelineRepository pipelineRepository;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
+    private SystemEnvironment systemEnvironment;
     private TimelineUpdateListener[] listeners;
     private final ReadWriteLock naturalOrderLock = new ReentrantReadWriteLock();
     private final ReadWriteLock scheduleOrderLock = new ReentrantReadWriteLock();
     private final Cloner cloner = new Cloner();
 
     @Autowired
-    public PipelineTimeline(PipelineRepository pipelineRepository, TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager,
+    public PipelineTimeline(PipelineRepository pipelineRepository, TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
                             TimelineUpdateListener... listeners) {
         this.pipelineRepository = pipelineRepository;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
+        this.systemEnvironment = systemEnvironment;
         this.listeners = listeners;
         naturalOrderPmm = new HashMap<>();
         scheduleOrderPmm = new HashMap<>();
@@ -95,7 +98,12 @@ public class PipelineTimeline {
     public void add(PipelineTimelineEntry pipelineTimelineEntry) {
         CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName());
         initializedNaturalOrderCollection(pipelineName).add(pipelineTimelineEntry);
-        initializedScheduleOrderCollection(pipelineName).add(pipelineTimelineEntry);
+
+        ArrayList<PipelineTimelineEntry> scheduledOrderPte = initializedScheduleOrderCollection(pipelineName);
+        if (scheduledOrderPte.size() == systemEnvironment.get(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT)) {
+            scheduledOrderPte.remove(0);
+        }
+        scheduledOrderPte.add(pipelineTimelineEntry);
         pipelineTimelineEntry.setInsertedBefore(naturalOrderAfter(pipelineTimelineEntry));
         pipelineTimelineEntry.setInsertedAfter(naturalOrderBefore(pipelineTimelineEntry));
         pipelineTimelineEntry.updateNaturalOrder();
