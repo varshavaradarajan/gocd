@@ -17,13 +17,14 @@
 package com.thoughtworks.go.apiv1.stageoperations.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.util.Pagination;
 
 public class StageInstancesRepresenter {
-    public static void toJSON(OutputWriter jsonWriter, StageInstanceModels stageInstanceModels, Pagination pagination) {
-        jsonWriter.addChildList("stages", stageInstancesWriter -> stageInstanceModels.forEach(
+    public static void toJSON(OutputWriter jsonWriter, StageHistoryModel stageHistoryModel) {
+        jsonWriter.addChildList("stages", stageInstancesWriter -> stageHistoryModel.getStageInstanceModels().forEach(
                 stageInstanceModel -> stageInstancesWriter.addChild(stageInstanceWriter -> StageInstanceRepresenter.toJSON(stageInstanceWriter, stageInstanceModel))));
-        jsonWriter.addChild("pagination", paginationWriter -> PaginationRepresenter.toJSON(paginationWriter, pagination));
+        jsonWriter.addChild("meta", paginationWriter -> PaginationRepresenter.toJSON(paginationWriter, stageHistoryModel));
     }
 }

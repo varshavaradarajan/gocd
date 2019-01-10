@@ -25,10 +25,7 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
-import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
@@ -411,20 +408,14 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
+    public StageHistoryModel findDetailedStageHistoryByOffset(String pipelineName,
                                                                 String stageName,
                                                                 final Pagination pagination) {
         String mutex = mutexForStageHistory(pipelineName, stageName);
         readWriteLock.acquireReadLock(mutex);
         try {
-            String subKey = String.format("%s-%s", pagination.getOffset(), pagination.getPageSize());
-            String key = cacheKeyForDetailedStageHistories(pipelineName, stageName);
-            StageInstanceModels stageInstanceModels = (StageInstanceModels) goCache.get(key, subKey);
-            if (stageInstanceModels == null) {
-                stageInstanceModels = findDetailedStageHistory(pipelineName, stageName, pagination);
-                goCache.put(key, subKey, stageInstanceModels);
-            }
-            return cloner.deepClone(stageInstanceModels);
+            StageHistoryModel detailedStageHistory = findDetailedStageHistory(pipelineName, stageName, pagination);
+            return cloner.deepClone(detailedStageHistory);
         } finally {
             readWriteLock.releaseReadLock(mutex);
         }
@@ -509,15 +500,24 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (List<StageHistoryEntry>) getSqlMapClientTemplate().queryForList("findStageHistoryPage", args);
     }
 
-    StageInstanceModels findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
+    StageHistoryModel findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).
                 and("stageName", stageName).
-                and("limit", pagination.getPageSize()).
-                and("offset", pagination.getOffset()).asMap();
-        List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistory", args);
+                and("limit", pagination.getPageSize() + 1).
+                and("cursor", pagination.getOffset()).asMap();
+        List<StageInstanceModel> detailedStageHistory;
+        if (pagination.getOffset() == 0) {
+           detailedStageHistory  = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistoryWithNoCursor", args);
+        }
+        else {
+            detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistoryWithCursor", args);
+        }
         StageInstanceModels stageInstanceModels = new StageInstanceModels();
-        stageInstanceModels.addAll(detailedStageHistory);
-        return stageInstanceModels;
+        stageInstanceModels.addAll(detailedStageHistory.subList(0, Math.min(pagination.getPageSize(), detailedStageHistory.size())));
+        StageHistoryModel stageHistoryModel = new StageHistoryModel(stageInstanceModels, detailedStageHistory.get(detailedStageHistory.size() - 1).getId());
+        stageHistoryModel.setPipelineName(pipelineName);
+        stageHistoryModel.setStageName(stageName);
+        return stageHistoryModel;
     }
 
     private int findOffsetForStage(Stage stage) {

@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
@@ -192,9 +193,9 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         HttpOperationResult result = new HttpOperationResult();
 
         Pagination pagination = Pagination.pageStartingAt(offsetFromRequest, stageInstanceCount, pageSize);
-        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination, currentUsername().getUsername().toString(), result);
+        StageHistoryModel stageHistoryModel = stageService.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination, currentUsername().getUsername().toString(), result);
         if (result.canContinue()) {
-            return writerForTopLevelObject(request, response, writer -> StageInstancesRepresenter.toJSON(writer, stageInstanceModels, pagination));
+            return writerForTopLevelObject(request, response, writer -> StageInstancesRepresenter.toJSON(writer, stageHistoryModel));
         } else {
             return renderHTTPOperationResult(result, request, response);
         }

@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
@@ -423,11 +424,11 @@ public class StageService implements StageRunFinder, StageFinder {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
     }
 
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
-                                                                String stageName,
-                                                                Pagination pagination,
-                                                                String username,
-                                                                OperationResult result) {
+    public StageHistoryModel findDetailedStageHistoryByOffset(String pipelineName,
+                                                              String stageName,
+                                                              Pagination pagination,
+                                                              String username,
+                                                              OperationResult result) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;

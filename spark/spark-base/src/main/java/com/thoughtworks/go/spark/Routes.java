@@ -243,6 +243,13 @@ public class Routes {
                     "stage_name", stageName,
                     "stage_counter", stageCounter));
         }
+
+        public static String stageHistory(String pipelineName, String stageName, long nextStageId) {
+            return StrSubstitutor.replace("/api/stages/${pipeline_name}/${stage_name}/history/${next_stage_id}", of(
+                    "pipeline_name", pipelineName,
+                    "stage_name", stageName,
+                    "next_stage_id", nextStageId));
+        }
     }
 
     public static class UserSummary {

@@ -17,12 +17,16 @@
 package com.thoughtworks.go.apiv1.stageoperations.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryModel;
+import com.thoughtworks.go.spark.Routes;
 
 public class PaginationRepresenter {
-    public static void toJSON(OutputWriter jsonWriter, Pagination pagination) {
-        jsonWriter.add("page_size", pagination.getPageSize())
-                .add("offset", pagination.getOffset())
-                .add("total", pagination.getTotal());
+    public static void toJSON(OutputWriter jsonWriter, StageHistoryModel stageHistoryModel) {
+        int pageSize = stageHistoryModel.getStageInstanceModels().size();
+        jsonWriter.add("page_size", pageSize);
+        if (pageSize >= 10) {
+            jsonWriter.add("next_cursor", stageHistoryModel.getNextCursor());
+            jsonWriter.addLinks(linksWriter -> linksWriter.addLink("next_page", Routes.Stage.stageHistory(stageHistoryModel.getPipelineName(), stageHistoryModel.getStageName(), stageHistoryModel.getNextCursor())));
+        }
     }
 }

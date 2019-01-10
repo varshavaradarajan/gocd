@@ -595,7 +595,7 @@ public class StageServiceTest {
 
 		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
 		HttpOperationResult result = new HttpOperationResult();
-		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result).getStageInstanceModels();
 
 		assertThat(stageInstanceModels, is(Matchers.nullValue()));
 		assertThat(result.httpCode(), is(404));
@@ -612,7 +612,7 @@ public class StageServiceTest {
 
 		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
 		HttpOperationResult result = new HttpOperationResult();
-		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result).getStageInstanceModels();
 
 		assertThat(stageInstanceModels, is(Matchers.nullValue()));
         assertThat(result.httpCode(), is(403));

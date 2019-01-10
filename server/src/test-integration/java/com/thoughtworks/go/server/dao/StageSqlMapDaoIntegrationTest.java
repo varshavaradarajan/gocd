@@ -24,10 +24,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
-import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
-import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
@@ -1642,7 +1639,7 @@ public class StageSqlMapDaoIntegrationTest {
 		scheduleUtil.runAndPass(p1, "h3");
 
 		Pagination pagination = Pagination.pageStartingAt(0, 3, 2);
-		StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+		StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
 
 		assertThat(stageInstanceModels.size(), is(2));
 
@@ -1661,7 +1658,7 @@ public class StageSqlMapDaoIntegrationTest {
 		assertJobDetails(stageInstanceModels.get(1).getBuildHistory());
 
 		pagination = Pagination.pageStartingAt(2, 3, 2);
-		stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+		stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
 
 		assertThat(stageInstanceModels.size(), is(1));
 
@@ -1755,43 +1752,43 @@ public class StageSqlMapDaoIntegrationTest {
         String run7 = scheduleUtil.runAndPass(p1, "h1", "h2", "h3");
 
         Pagination pagination = Pagination.pageStartingAt(0, 7, 3);
-        StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        StageInstanceModels stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run7, run6, run5);
 
         pagination = Pagination.pageStartingAt(1, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run6, run5, run4);
 
         pagination = Pagination.pageStartingAt(2, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run5, run4, run3);
 
         pagination = Pagination.pageStartingAt(3, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run4, run3, run2);
 
         pagination = Pagination.pageStartingAt(4, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run3, run2, run1);
 
         pagination = Pagination.pageStartingAt(5, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run2, run1);
 
         pagination = Pagination.pageStartingAt(6, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run1);
 
         pagination = Pagination.pageStartingAt(7, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertThat("Expected no models. Found: " + stageInstanceModels, stageInstanceModels.size(), is(0));
 
         pagination = Pagination.pageStartingAt(20, 7, 3);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertThat("Expected no models. Found: " + stageInstanceModels, stageInstanceModels.size(), is(0));
 
         pagination = Pagination.pageStartingAt(1, 7, 4);
-        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+        stageInstanceModels = stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination).getStageInstanceModels();
         assertStageModels(stageInstanceModels, run6, run5, run4, run3);
     }
 
