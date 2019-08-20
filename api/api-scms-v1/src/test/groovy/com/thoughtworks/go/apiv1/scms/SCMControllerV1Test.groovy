@@ -552,7 +552,7 @@ class SCMControllerV1Test implements SecurityServiceTrait, ControllerTrait<SCMCo
       }
 
       @Test
-      void 'should return 404 if the scm does not exists'() {
+      void 'should return 404 if the scm does not exist'() {
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(null)
         putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'wrong-md5'], [:])
 
